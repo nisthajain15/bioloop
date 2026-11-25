@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BioLoop AI – Smart Food Waste Management & Sustainability Platform</title>
+<meta name="description" content="BioLoop AI – Turning Food Waste Into Valuable Resources.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- CDN LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* =====================================================================
+   BIOLOOP AI — STYLES
+   1. Tokens  2. Base  3. Layout  4. Components  5. Pages  6. Chatbot  7. Responsive
+   ===================================================================== */
+:root{
+  --forest:#123B2A; --forest-2:#1B4D38; --emerald:#16A36A; --emerald-d:#0E8556; --lime:#C6F26B; --lime-d:#9BD13C;
+  --bg:#FAF7F0; --card:#FFFFFF; --ink:#1F2A27; --muted:#66756F; --line:#E8E3D6; --soft:#F2EEE3;
+  --peach:#F29E84; --amber:#E8A317; --red:#D64545; --teal:#4F9DA6;
+  --shadow:0 1px 2px rgba(18,59,42,.06),0 8px 24px rgba(18,59,42,.07); --shadow-lg:0 20px 50px rgba(18,59,42,.22);
+  --r:16px; --side:264px; --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14.5px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+h1,h2,h3,h4{line-height:1.2;letter-spacing:-.01em}
+i[data-lucide],svg.lucide{width:18px;height:18px;stroke-width:2;flex:none}
+.app{display:flex;min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{position:fixed;inset:0 auto 0 0;width:var(--side);background:linear-gradient(180deg,var(--forest) 0%,#0D2D20 100%);color:#DDEBE3;display:flex;flex-direction:column;padding:22px 14px 16px;z-index:60;transition:transform .35s var(--ease)}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 10px 20px}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--emerald),var(--lime));display:grid;place-items:center;color:var(--forest);box-shadow:0 6px 18px rgba(22,163,106,.45)}
+.logo svg{width:23px;height:23px}
+.brand b{display:block;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.brand small{color:#9FC2B0;font-size:11px;display:block;margin-top:1px}
+.nav{display:flex;flex-direction:column;gap:3px;margin-top:4px;overflow-y:auto}
+.nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:#7FA894;padding:8px 12px 6px;font-weight:600}
+.nav button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:#C9DDD2;font-weight:500;text-align:left;transition:all .2s var(--ease);position:relative}
+.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button.active{background:linear-gradient(90deg,rgba(198,242,107,.20),rgba(22,163,106,.12));color:#fff;font-weight:600}
+.nav button.active::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:4px;border-radius:0 4px 4px 0;background:var(--lime)}
+.nav button.active i,.nav button.active svg{color:var(--lime)}
+.side-foot{margin-top:auto;padding:14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;color:#B7D0C2}
+.side-foot b{color:#fff;display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:12.5px}
+.side-foot .row{display:flex;justify-content:space-between;gap:8px;margin-top:3px}
+.overlay{position:fixed;inset:0;background:rgba(10,30,22,.5);backdrop-filter:blur(2px);z-index:55;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.show{opacity:1;pointer-events:auto}
+
+/* ---------- Main + topbar ---------- */
+.main{margin-left:var(--side);flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(250,247,240,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hamb{display:none;width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--line);place-items:center}
+.ttl h1{font-size:21px;font-weight:800;color:var(--forest)}
+.ttl p{color:var(--muted);font-size:12.5px;margin-top:2px}
+.filters{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.field{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 11px;height:40px;transition:border-color .2s,box-shadow .2s}
+.field:focus-within{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(22,163,106,.15)}
+.field i,.field svg{color:var(--muted);width:16px;height:16px}
+.field select,.field input{border:0;outline:0;background:transparent;height:100%;font-size:13px;min-width:0}
+.field input[type=date]{width:128px}
+.iconbtn{width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;transition:all .2s}
+.iconbtn:hover{border-color:var(--emerald);color:var(--emerald)}
+.content{padding:24px 28px 110px;max-width:1500px;width:100%;margin:0 auto}
+.banner{display:none;margin:16px 28px 0;padding:11px 16px;border-radius:12px;background:#FFF6DC;border:1px solid #F2DFA0;color:#6E5410;font-size:13px;align-items:center;gap:10px}
+.banner.show{display:flex}
+.banner a{color:var(--forest);font-weight:700;text-decoration:underline;cursor:pointer}
+
+/* ---------- Pages ---------- */
+.page{display:none;animation:pageIn .45s var(--ease)}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.sec-head h2{font-size:19px;font-weight:700;color:var(--forest)}
+.sec-head p{color:var(--muted);font-size:13px;margin-top:3px}
+
+/* ---------- Components ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;transition:box-shadow .25s,transform .25s var(--ease)}
+.card.hover:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(18,59,42,.13)}
+.card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+.card-h h3{font-size:15px;font-weight:700;color:var(--forest);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-h p{font-size:12px;color:var(--muted);margin-top:3px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-13{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+.mt{margin-top:18px}
+.chart-box{position:relative;height:300px}
+.chart-box.tall{height:360px}.chart-box.short{height:240px}
+.chart-empty{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;background:repeating-linear-gradient(45deg,transparent 0 10px,rgba(18,59,42,.025) 10px 20px);border-radius:12px;padding:20px}
+.chart-box.is-empty canvas{display:none}.chart-box.is-empty .chart-empty{display:flex}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13.5px;transition:all .2s var(--ease);border:1px solid transparent;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--emerald);color:#fff;box-shadow:0 6px 16px rgba(22,163,106,.3)}.btn-primary:hover{background:var(--emerald-d)}
+.btn-dark{background:var(--forest);color:#fff}.btn-dark:hover{background:var(--forest-2)}
+.btn-lime{background:var(--lime);color:var(--forest)}.btn-lime:hover{background:#d4f78a}
+.btn-ghost{background:var(--card);border-color:var(--line);color:var(--forest)}.btn-ghost:hover{border-color:var(--emerald);color:var(--emerald)}
+.btn-light{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25)}.btn-light:hover{background:rgba(255,255,255,.2)}
+.btn-danger{background:#fff;color:var(--red);border-color:#F0C4C4}.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:7px 12px;font-size:12.5px;border-radius:10px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:4px;gap:2px}
+.seg button{padding:7px 14px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:all .2s}
+.seg button.on{background:#fff;color:var(--forest);box-shadow:0 2px 8px rgba(18,59,42,.12)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.02em}
+.pill.green{background:#DDF5E8;color:#0B6B43}.pill.amber{background:#FFF0C9;color:#8A5E00}.pill.red{background:#FBDADA;color:#A02828}.pill.gray{background:var(--soft);color:var(--muted)}.pill.lime{background:var(--lime);color:var(--forest)}.pill.blue{background:#DCEFF2;color:#276A73}
+.demo-pill{display:none;padding:2px 8px;border-radius:99px;background:#FFF0C9;color:#8A5E00;font-size:10.5px;font-weight:700}
+body.is-demo .demo-pill{display:inline-flex}
+.est-pill{padding:2px 8px;border-radius:99px;background:#E7E2F7;color:#4B3C8C;font-size:10.5px;font-weight:700}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:9px 12px;background:var(--soft);white-space:nowrap;position:sticky;top:0}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl tr:hover td{background:#FBF9F3}
+.tbl td.miss{background:#FFF1F0;color:var(--red)}
+.tbl td.r,.tbl th.r{text-align:right}
+.tscroll{overflow:auto;max-height:340px;border:1px solid var(--line);border-radius:12px}
+.list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.list li{display:flex;gap:11px;align-items:flex-start;font-size:13.5px}
+.list li .dot{width:26px;height:26px;border-radius:8px;background:#E3F6EC;color:var(--emerald-d);display:grid;place-items:center;flex:none}
+.list li .dot i,.list li .dot svg{width:14px;height:14px}
+.list li .dot.warn{background:#FFF0C9;color:#8A5E00}.list li .dot.bad{background:#FBDADA;color:#A02828}.list li .dot.vio{background:#E7E2F7;color:#4B3C8C}
+label.lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.inp{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:#fff;outline:0;transition:all .2s}
+.inp:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(22,163,106,.15)}
+.note{font-size:12px;color:var(--muted)}
+.callout{padding:12px 14px;border-radius:12px;background:#EAF7F0;border:1px solid #C7E9D7;color:#0E5C3B;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.callout.warn{background:#FFF6DC;border-color:#F2DFA0;color:#6E5410}
+.callout.vio{background:#F1EEFB;border-color:#D8D0F2;color:#4B3C8C}
+details summary{cursor:pointer;font-weight:600;color:var(--forest);font-size:13px}
+pre.code{background:#0E2A1E;color:#CFEBDC;border-radius:12px;padding:14px;font-size:12px;overflow:auto;margin-top:10px;line-height:1.55}
+
+/* ---------- Overview ---------- */
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:30px 32px;background:radial-gradient(1200px 400px at 85% -20%,rgba(198,242,107,.28),transparent 60%),linear-gradient(120deg,var(--forest) 0%,#1A5139 100%);color:#fff;display:flex;gap:26px;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px;box-shadow:var(--shadow-lg)}
+.hero::after{content:"";position:absolute;right:-60px;bottom:-90px;width:300px;height:300px;border-radius:50%;border:44px solid rgba(198,242,107,.09)}
+.hero .eyebrow{display:inline-flex;gap:7px;align-items:center;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);font-weight:700}
+.hero h2{font-size:28px;font-weight:800;margin:9px 0 8px;letter-spacing:-.025em}
+.hero p{color:#BFD9CB;max-width:560px;font-size:14px}
+.hero .btns{margin-top:18px}
+.hero-stats{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;position:relative;z-index:1}
+.hstat{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px 16px;min-width:140px}
+.hstat small{color:#A9C8B8;font-size:11.5px;display:block}.hstat b{font-size:17px;display:block;margin-top:3px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:18px}
+.kpi{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);transition:all .3s var(--ease);animation:rise .6s var(--ease) both}
+.kpi:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(18,59,42,.14)}
+.kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:var(--tint,rgba(22,163,106,.08))}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.kpi-ico{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:var(--tint,rgba(22,163,106,.12));color:var(--c,var(--emerald-d))}
+.kpi-ico i,.kpi-ico svg{width:22px;height:22px}
+.trend{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px}
+.trend i,.trend svg{width:14px;height:14px}
+.trend.good{background:#DDF5E8;color:#0B6B43}.trend.bad{background:#FFE9D6;color:#B45309}.trend.flat{background:var(--soft);color:var(--muted)}
+.kpi-val{font-size:32px;font-weight:800;letter-spacing:-.03em;color:var(--forest);margin-top:16px;position:relative;z-index:1}
+.kpi-val small{font-size:14px;font-weight:600;color:var(--muted);margin-left:5px;letter-spacing:0}
+.kpi-label{font-weight:600;color:var(--ink);margin-top:2px;position:relative;z-index:1}
+.kpi-cmp{font-size:12px;color:var(--muted);margin-top:6px;position:relative;z-index:1}
+
+/* ---------- Import ---------- */
+.dz{border:2px dashed #B8D5C5;border-radius:20px;padding:42px 20px;text-align:center;background:linear-gradient(180deg,#F4FBF7,#FFFFFF);transition:all .25s var(--ease);cursor:pointer}
+.dz:hover,.dz.drag{border-color:var(--emerald);background:#EAF8F0;transform:scale(1.005)}
+.dz .ico{width:64px;height:64px;border-radius:20px;margin:0 auto 14px;background:linear-gradient(135deg,var(--emerald),var(--lime));display:grid;place-items:center;color:#fff;box-shadow:0 10px 24px rgba(22,163,106,.35);animation:float 3s ease-in-out infinite}
+.dz .ico i,.dz .ico svg{width:30px;height:30px}
+@keyframes float{50%{transform:translateY(-6px)}}
+.dz h3{color:var(--forest);font-size:17px}.dz p{color:var(--muted);margin-top:5px}
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.step b{width:24px;height:24px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:12px}
+.step.done b{background:var(--emerald);color:#fff}
+.map-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.stat-chip{padding:10px 14px;border-radius:12px;background:var(--soft);min-width:120px}
+.stat-chip small{display:block;color:var(--muted);font-size:11.5px}.stat-chip b{font-size:19px;color:var(--forest)}
+.stat-chip.bad b{color:var(--red)}.stat-chip.warn b{color:#B77B00}.stat-chip.ok b{color:var(--emerald-d)}
+.hide{display:none!important}
+
+/* ---------- BSF flow ---------- */
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;overflow-x:auto;padding:6px 2px 10px}
+.fnode{flex:1 1 0;min-width:150px;background:linear-gradient(180deg,#fff,#F6FBF8);border:1px solid var(--line);border-radius:18px;padding:16px 14px;text-align:center;position:relative;box-shadow:var(--shadow)}
+.fnode .ic{width:54px;height:54px;border-radius:17px;margin:0 auto 10px;display:grid;place-items:center;background:var(--bg-c,#E3F6EC);color:var(--c,var(--emerald-d));animation:pulse 2.6s ease-in-out infinite;animation-delay:var(--d,0s)}
+.fnode .ic i,.fnode .ic svg{width:26px;height:26px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,106,.25)}50%{box-shadow:0 0 0 10px rgba(22,163,106,0)}}
+.fnode h4{font-size:13.5px;color:var(--forest)}.fnode .v{font-size:19px;font-weight:800;color:var(--forest);margin-top:6px}.fnode .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.fconn{flex:0 0 46px;position:relative;align-self:center;height:6px;border-radius:6px;background:repeating-linear-gradient(90deg,rgba(22,163,106,.25) 0 8px,transparent 8px 14px)}
+.fconn::before{content:"";position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:var(--emerald);box-shadow:0 0 12px var(--lime);animation:travel 1.8s linear infinite;animation-delay:var(--d,0s)}
+@keyframes travel{from{left:-6px;opacity:0}15%{opacity:1}85%{opacity:1}to{left:calc(100% - 8px);opacity:0}}
+.progress{height:12px;background:var(--soft);border-radius:99px;overflow:hidden}
+.progress>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--emerald),var(--lime));transition:width 1s var(--ease);position:relative}
+.progress>span::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:shine 2.2s linear infinite}
+@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.metric{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.metric:last-child{border:0}.metric b{font-size:16px;color:var(--forest)}
+.metric small{display:block;color:var(--muted);font-size:11.5px}
+
+/* ---------- IoT ---------- */
+.sensor{position:relative;overflow:hidden}
+.sensor .top{display:flex;justify-content:space-between;align-items:center}
+.sensor .name{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--forest)}
+.sensor .name span.ic{width:38px;height:38px;border-radius:11px;background:#E3F6EC;color:var(--emerald-d);display:grid;place-items:center}
+.sensor .val{font-size:38px;font-weight:800;letter-spacing:-.03em;margin:12px 0 4px;color:var(--forest)}
+.sensor .val small{font-size:16px;color:var(--muted);font-weight:600}
+.sensor.warn{border-color:#F2D58A;box-shadow:0 0 0 3px rgba(232,163,23,.12),var(--shadow)}
+.sensor.crit{border-color:#EDA9A9;box-shadow:0 0 0 3px rgba(214,69,69,.15),var(--shadow);animation:alarm 1.4s infinite}
+@keyframes alarm{50%{box-shadow:0 0 0 7px rgba(214,69,69,.1),var(--shadow)}}
+.range{position:relative;height:10px;border-radius:99px;margin:14px 0 6px}
+.range i{position:absolute;top:-5px;width:4px;height:20px;border-radius:3px;background:var(--forest);box-shadow:0 0 0 2px #fff;transition:left .8s var(--ease)}
+.range-lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--emerald);display:inline-block;animation:blink 1.4s infinite}
+.live-dot.off{background:var(--red);animation:none}.live-dot.sim{background:var(--amber)}
+@keyframes blink{50%{opacity:.3}}
+.alert-item{display:flex;gap:10px;padding:10px 12px;border-radius:11px;font-size:13px;align-items:flex-start;margin-bottom:8px}
+.alert-item.warn{background:#FFF6DC}.alert-item.crit{background:#FDE7E7}.alert-item.info{background:#EAF7F0}
+.alert-item time{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+.thr-grid{display:grid;grid-template-columns:110px repeat(4,minmax(0,1fr));gap:8px;align-items:center}
+.thr-grid .h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase}
+
+/* ---------- Impact ---------- */
+.ring{position:relative;width:150px;height:150px;margin:0 auto}
+.ring svg{transform:rotate(-90deg);width:150px;height:150px}
+.ring circle{fill:none;stroke-width:13;stroke-linecap:round}
+.ring .bg{stroke:var(--soft)}.ring .fg{stroke:var(--emerald);transition:stroke-dashoffset 1.2s var(--ease)}
+.ring .tx{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-weight:800;font-size:25px;color:var(--forest)}
+.ring .tx small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.big-stat{display:flex;gap:14px;align-items:center}
+.big-stat .ic{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;background:var(--bg-c,#E3F6EC);color:var(--c,var(--emerald-d));flex:none}
+.big-stat b{font-size:24px;display:block;color:var(--forest);letter-spacing:-.02em}.big-stat span{font-size:12.5px;color:var(--muted)}
+.assump{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+
+/* ---------- Reports ---------- */
+.rtypes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.rtype{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px;transition:all .2s var(--ease);display:flex;flex-direction:column;gap:7px}
+.rtype:hover{border-color:var(--emerald);transform:translateY(-2px)}
+.rtype.on{border-color:var(--emerald);background:#EEF9F3;box-shadow:0 0 0 3px rgba(22,163,106,.13)}
+.rtype .ic{width:34px;height:34px;border-radius:10px;background:#E3F6EC;color:var(--emerald-d);display:grid;place-items:center}
+.rtype b{font-size:13px;color:var(--forest)}.rtype span{font-size:11.5px;color:var(--muted)}
+.mini-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.mini-kpi{background:var(--soft);border-radius:12px;padding:11px 12px}.mini-kpi small{font-size:11px;color:var(--muted);display:block}.mini-kpi b{font-size:16px;color:var(--forest)}
+
+/* ---------- Toast / Modal ---------- */
+.toasts{position:fixed;top:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{pointer-events:auto;min-width:260px;max-width:380px;background:var(--forest);color:#fff;padding:13px 16px;border-radius:13px;box-shadow:var(--shadow-lg);display:flex;gap:10px;align-items:flex-start;animation:toastIn .4s var(--ease);font-size:13.5px}
+.toast.err{background:#8F2323}.toast.warn{background:#7A5600}
+.toast.out{animation:toastOut .3s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(30px)}}
+.modal-bg{position:fixed;inset:0;background:rgba(10,30,22,.55);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.modal{background:#fff;border-radius:20px;padding:26px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);animation:pop .3s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(10px)}}
+.modal h3{color:var(--forest);font-size:18px;margin-bottom:8px}.modal p{color:var(--muted);margin-bottom:18px}
+.modal .btns{justify-content:flex-end}
+
+/* ---------- Chatbot ---------- */
+.chat-fab{position:fixed;right:24px;bottom:24px;z-index:90;display:flex;align-items:center;gap:10px;height:58px;padding:0 20px 0 8px;border-radius:99px;background:linear-gradient(135deg,var(--emerald),var(--forest));color:#fff;box-shadow:0 12px 30px rgba(18,59,42,.45);font-weight:700;transition:all .3s var(--ease)}
+.chat-fab:hover{transform:translateY(-3px) scale(1.03)}
+.chat-fab .fab-ico{width:42px;height:42px;border-radius:50%;background:var(--lime);color:var(--forest);display:grid;place-items:center}
+.chat-fab::before{content:"";position:absolute;inset:0;border-radius:99px;box-shadow:0 0 0 0 rgba(22,163,106,.55);animation:ring 2.6s infinite}
+@keyframes ring{70%{box-shadow:0 0 0 16px rgba(22,163,106,0)}100%{box-shadow:0 0 0 0 rgba(22,163,106,0)}}
+.chat-fab.hidden{transform:scale(0);opacity:0;pointer-events:none}
+.chat{position:fixed;right:24px;bottom:24px;z-index:100;width:410px;max-width:calc(100vw - 24px);height:640px;max-height:calc(100vh - 48px);background:#fff;border-radius:22px;box-shadow:0 30px 80px rgba(10,40,28,.38);display:flex;flex-direction:column;overflow:hidden;transform-origin:bottom right;transform:scale(.7) translateY(30px);opacity:0;pointer-events:none;transition:all .35s var(--ease);border:1px solid var(--line)}
+.chat.open{transform:none;opacity:1;pointer-events:auto}
+.chat-head{background:linear-gradient(120deg,var(--forest),#1A5139);color:#fff;padding:14px 14px 14px 16px;display:flex;align-items:center;gap:11px}
+.av{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
+.av.bot{background:var(--lime);color:var(--forest)}.av.user{background:var(--forest);color:#fff;font-weight:700;font-size:13px}
+.chat-head .t{flex:1;min-width:0}.chat-head b{display:block;font-size:15px}.chat-head small{color:#B2D2C2;font-size:11.5px}
+.chat-head .hb{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#CFE6DA}.chat-head .hb:hover{background:rgba(255,255,255,.14);color:#fff}
+.chat-mode{padding:6px 14px;font-size:11.5px;background:#F0F8F3;color:#0E5C3B;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
+.chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,#FBFAF5,#F4F9F6);scroll-behavior:smooth}
+.msg{display:flex;gap:9px;max-width:100%;animation:msgIn .35s var(--ease)}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}}
+.msg.user{flex-direction:row-reverse}
+.bub{padding:11px 14px;border-radius:16px;font-size:13.5px;line-height:1.55;max-width:calc(100% - 50px);box-shadow:0 1px 3px rgba(18,59,42,.08)}
+.msg.bot .bub{background:#fff;border:1px solid var(--line);border-top-left-radius:5px}
+.msg.user .bub{background:var(--forest);color:#fff;border-top-right-radius:5px}
+.bub p+p{margin-top:7px}.bub ul{margin:6px 0 2px 18px}.bub li{margin:3px 0}
+.bub .src{display:inline-flex;gap:5px;align-items:center;margin-top:9px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px}
+.src.local{background:#DDF5E8;color:#0B6B43}.src.ext{background:#E7E2F7;color:#4B3C8C}.src.sys{background:var(--soft);color:var(--muted)}
+.typing{display:flex;gap:5px;padding:14px 16px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+.chat-suggest{display:flex;gap:7px;overflow-x:auto;padding:10px 12px;border-top:1px solid var(--line);background:#fff;scrollbar-width:thin}
+.chat-suggest button{flex:none;font-size:12px;padding:7px 12px;border-radius:99px;background:#EEF9F3;color:#0E5C3B;border:1px solid #CBEBDA;font-weight:600;transition:all .2s}
+.chat-suggest button:hover{background:var(--emerald);color:#fff}
+.chat-input{display:flex;gap:8px;padding:10px 12px 14px;background:#fff}
+.chat-input input{flex:1;height:44px;border:1px solid var(--line);border-radius:13px;padding:0 14px;outline:0;background:#FAFAF6}
+.chat-input input:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(22,163,106,.15)}
+.chat-input .send{width:44px;height:44px;border-radius:13px;background:var(--emerald);color:#fff;display:grid;place-items:center;transition:all .2s}.chat-input .send:hover{background:var(--emerald-d)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1280px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.rtypes{grid-template-columns:repeat(3,minmax(0,1fr))}.mini-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.assump{grid-template-columns:repeat(2,minmax(0,1fr))}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:980px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none;box-shadow:var(--shadow-lg)}
+  .main{margin-left:0}.hamb{display:grid}
+  .topbar{padding:12px 16px}.filters{margin-left:0;width:100%}.content{padding:18px 16px 110px}.banner{margin:12px 16px 0}
+  .g2,.g-13{grid-template-columns:minmax(0,1fr)}.map-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .flow{flex-direction:column;overflow:visible}.fconn{flex:0 0 34px;width:6px;height:34px;align-self:center;background:repeating-linear-gradient(180deg,rgba(22,163,106,.25) 0 8px,transparent 8px 14px)}
+  .fconn::before{left:-4px;top:auto;animation-name:travelV}
+  @keyframes travelV{from{top:-6px;opacity:0}15%{opacity:1}85%{opacity:1}to{top:calc(100% - 8px);opacity:0}}
+  .fnode{min-width:0}
+}
+@media (max-width:640px){
+  .kpi-grid,.g3,.g4,.map-grid,.assump{grid-template-columns:minmax(0,1fr)}.rtypes,.mini-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero{padding:22px 18px}.hero h2{font-size:23px}.kpi-val{font-size:28px}.ttl h1{font-size:18px}
+  .chat{right:0;bottom:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}.chat-fab{right:14px;bottom:14px}.chat-fab .fab-label{display:none}.chat-fab{padding:0 8px}
+  .thr-grid{grid-template-columns:70px repeat(4,minmax(0,1fr))}.field input[type=date]{width:112px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}}
+</style>
+</head>
+<body class="is-demo">
+<div class="overlay" id="overlay" data-act="close-sidebar"></div>
+<div class="toasts" id="toasts"></div>
+
+<div class="app">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+      <div><b>BioLoop AI</b><small>Turning Food Waste Into Valuable Resources</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <b><span class="live-dot sim" id="sfDot"></span> BioPod status</b>
+      <div class="row"><span>Data source</span><span id="sfData">Demo</span></div>
+      <div class="row"><span>Sensors</span><span id="sfSensor">Simulated</span></div>
+      <div class="row"><span>Org</span><span id="sfOrg">—</span></div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="hamb" data-act="open-sidebar" aria-label="Open menu"><i data-lucide="menu"></i></button>
+      <div class="ttl"><h1 id="pageTitle">Overview</h1><p id="pageSub">—</p></div>
+      <div class="filters">
+        <div class="field"><i data-lucide="calendar"></i>
+          <select id="fPreset" data-chg="preset" aria-label="Date range">
+            <option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="all">All data</option><option value="custom">Custom range</option>
+          </select></div>
+        <div class="field hide" id="fCustom"><input type="date" id="fFrom" data-chg="from" aria-label="From"><span class="note">to</span><input type="date" id="fTo" data-chg="to" aria-label="To"></div>
+        <div class="field"><i data-lucide="building-2"></i><select id="fHostel" data-chg="hostel" aria-label="Hostel"><option value="all">All hostels</option></select></div>
+        <button class="iconbtn" data-act="settings-open" title="Settings" aria-label="Settings"><i data-lucide="settings"></i></button>
+      </div>
+    </header>
+    <div class="banner" id="demoBanner"><i data-lucide="info"></i><span><b>Showing sample/demo data.</b> Every chart and KPI below is computed from generated demo records until you upload your own CSV/Excel file. <a data-act="goto" data-arg="import">Import your data →</a></span></div>
+
+    <main class="content">
+      <!-- ============ 1. OVERVIEW ============ -->
+      <section class="page active" id="page-overview">
+        <div class="hero">
+          <div style="position:relative;z-index:1">
+            <span class="eyebrow"><i data-lucide="sparkles"></i> Smart food waste management</span>
+            <h2 id="greet">Welcome</h2>
+            <p>Track how campus food waste becomes organic fertilizer and protein-rich feed through Black Soldier Fly processing — with live analytics, AI forecasts and sustainability reporting.</p>
+            <div class="btns">
+              <button class="btn btn-lime" data-act="goto" data-arg="import"><i data-lucide="upload-cloud"></i> Import data</button>
+              <button class="btn btn-light" data-act="goto" data-arg="reports"><i data-lucide="file-text"></i> Generate report</button>
+              <button class="btn btn-light" data-act="chat-open"><i data-lucide="bot"></i> Ask BioBot</button>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="hstat"><small>Reporting period</small><b id="hsPeriod">—</b></div>
+            <div class="hstat"><small>Records in view</small><b id="hsRecs">—</b></div>
+            <div class="hstat"><small>Data source</small><b id="hsSrc">—</b></div>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="grid g-13">
+          <div class="card"><div class="card-h"><div><h3>Waste collected vs processed <span class="demo-pill">Demo data</span></h3><p>Daily totals in kilograms for the selected period</p></div></div>
+            <div class="chart-box"><canvas id="ovTrend"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+          <div class="card"><div class="card-h"><div><h3>Food waste composition <span class="demo-pill">Demo data</span></h3><p>Share of collected waste by food type</p></div></div>
+            <div class="chart-box"><canvas id="ovDonut"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>Hostel comparison <span class="demo-pill">Demo data</span></h3><p>Total food waste collected per hostel (kg)</p></div></div>
+            <div class="chart-box short"><canvas id="ovHostel"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="lightbulb"></i> Key insights</h3><p>Generated from the records currently in view</p></div></div>
+            <ul class="list" id="ovInsights"></ul></div>
+        </div>
+      </section>
+
+      <!-- ============ 2. ANALYTICS ============ -->
+      <section class="page" id="page-analytics">
+        <div class="sec-head"><div><h2>Interactive waste analytics</h2><p>All charts are computed from the records in view. Hover for tooltips, click legend items to toggle series.</p></div>
+          <div class="seg" id="granSeg"><button data-act="gran" data-arg="day" class="on">Daily</button><button data-act="gran" data-arg="week">Weekly</button><button data-act="gran" data-arg="month">Monthly</button></div></div>
+        <div class="card"><div class="card-h"><div><h3>A · Waste collection trends <span class="demo-pill">Demo data</span></h3><p>Collected vs processed food waste (kg)</p></div></div>
+          <div class="chart-box tall"><canvas id="anTrend"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>B · Food waste composition <span class="demo-pill">Demo data</span></h3><p>Rice, dal, roti, vegetables, paneer and other (kg)</p></div></div>
+            <div class="chart-box"><canvas id="anDonut"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+          <div class="card"><div class="card-h"><div><h3>C · Hostel comparison <span class="demo-pill">Demo data</span></h3><p>Food waste generated per hostel (kg)</p></div></div>
+            <div class="chart-box"><canvas id="anHostel"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>D · Resource production <span class="demo-pill">Demo data</span></h3><p>Organic fertilizer and protein meal output (kg)</p></div></div>
+            <div class="chart-box"><canvas id="anResource"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+          <div class="card"><div class="card-h"><div><h3>E · Waste processing <span class="demo-pill">Demo data</span></h3><p>Processed + remaining = collected (kg)</p></div></div>
+            <div class="chart-box"><canvas id="anProcess"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="card mt"><div class="card-h"><div><h3>F · Environmental impact <span class="demo-pill">Demo data</span></h3><p>Landfill diversion (%) and estimated CO₂ avoided (kg CO₂e) — factors are editable on the Sustainability page</p></div></div>
+          <div class="chart-box tall"><canvas id="anImpact"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+      </section>
+
+      <!-- ============ 3. DATA IMPORT ============ -->
+      <section class="page" id="page-import">
+        <div class="sec-head"><div><h2>CSV &amp; Excel data import</h2><p>Upload .csv, .xlsx or .xls — preview, map columns, validate, then confirm. Data is stored in this browser only (localStorage).</p></div>
+          <div class="btns"><button class="btn btn-ghost" data-act="imp-template"><i data-lucide="file-down"></i> Download template CSV</button></div></div>
+        <div class="card">
+          <div class="steps"><div class="step" id="st1"><b>1</b> Upload</div><div class="step" id="st2"><b>2</b> Map columns</div><div class="step" id="st3"><b>3</b> Validate</div><div class="step" id="st4"><b>4</b> Confirm import</div></div>
+          <div class="dz" id="dz" tabindex="0" role="button" aria-label="Upload file">
+            <div class="ico"><i data-lucide="cloud-upload"></i></div>
+            <h3>Drag &amp; drop your file here, or click to browse</h3>
+            <p>Supports CSV, XLSX, XLS · Expected columns: Date, Hostel, Food Type, Waste Collected, Waste Processed, Larvae Used, Fertilizer Produced, Protein Meal Produced, Temperature, Humidity, Moisture</p>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.tsv,.txt" class="hide">
+          </div>
+        </div>
+        <div id="impWizard" class="hide">
+          <div class="card mt"><div class="card-h"><div><h3><i data-lucide="columns"></i> Column mapping</h3><p id="impFile">—</p></div><div id="sheetPick" class="hide"><label class="lbl">Worksheet</label><select class="inp" id="sheetSel" data-chg="sheet"></select></div></div>
+            <div class="map-grid" id="mapGrid"></div></div>
+          <div class="card mt"><div class="card-h"><div><h3><i data-lucide="shield-check"></i> Validation report</h3><p>Checks required columns, missing values, duplicates and unrealistic values</p></div></div>
+            <div class="chips" id="impChips"></div><ul class="list mt" id="impIssues"></ul></div>
+          <div class="card mt"><div class="card-h"><div><h3><i data-lucide="table"></i> Data preview</h3><p>First rows of the uploaded file (empty cells highlighted)</p></div></div>
+            <div class="tscroll"><table class="tbl" id="impPreview"></table></div></div>
+          <div class="card mt"><div class="card-h"><div><h3><i data-lucide="check-circle-2"></i> Confirm import</h3><p>Nothing is stored until you confirm.</p></div></div>
+            <div class="grid g2">
+              <div><label class="lbl">Import mode</label>
+                <div class="seg" id="modeSeg"><button data-act="imp-mode" data-arg="replace" class="on">Replace existing</button><button data-act="imp-mode" data-arg="append">Append to existing</button></div>
+                <label style="display:flex;gap:8px;align-items:center;margin-top:14px;font-size:13.5px"><input type="checkbox" id="optDupes" checked> Skip duplicate rows</label></div>
+              <div style="display:flex;align-items:flex-end;justify-content:flex-end;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" data-act="imp-cancel">Cancel</button><button class="btn btn-primary" id="impConfirm" data-act="imp-confirm"><i data-lucide="check"></i> Confirm &amp; import</button></div>
+            </div></div>
+        </div>
+        <div class="card mt">
+          <div class="card-h"><div><h3><i data-lucide="database"></i> Stored data</h3><p id="storedInfo">—</p></div>
+            <div class="btns"><button class="btn btn-ghost btn-sm" data-act="exp-all-csv"><i data-lucide="download"></i> Download CSV</button><button class="btn btn-ghost btn-sm" data-act="exp-all-xlsx"><i data-lucide="file-spreadsheet"></i> Download Excel</button><button class="btn btn-ghost btn-sm" data-act="exp-f-csv"><i data-lucide="filter"></i> Export filtered CSV</button><button class="btn btn-ghost btn-sm" data-act="exp-f-xlsx"><i data-lucide="filter"></i> Export filtered Excel</button><button class="btn btn-danger btn-sm" data-act="clear-data"><i data-lucide="trash-2"></i> Clear imported data</button></div></div>
+          <div class="tscroll"><table class="tbl" id="storedTbl"></table></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px"><span class="note" id="pgInfo"></span><div class="btns"><button class="btn btn-ghost btn-sm" data-act="tbl-prev">‹ Prev</button><button class="btn btn-ghost btn-sm" data-act="tbl-next">Next ›</button></div></div>
+        </div>
+      </section>
+
+      <!-- ============ 4. AI PREDICTIONS ============ -->
+      <section class="page" id="page-predictions">
+        <div class="sec-head"><div><h2>AI predictions <span class="est-pill">ESTIMATES</span></h2><p>Transparent forecasting from your historical records. Predictions are estimates, not confirmed results.</p></div>
+          <div class="btns"><div class="seg" id="horSeg"><button data-act="horizon" data-arg="7">7 days</button><button data-act="horizon" data-arg="30" class="on">30 days</button><button data-act="horizon" data-arg="90">90 days</button></div>
+          <div class="seg" id="pmSeg"><button data-act="pm" data-arg="collected" class="on">Food waste</button><button data-act="pm" data-arg="fertilizer">Fertilizer</button><button data-act="pm" data-arg="protein">Protein meal</button></div></div></div>
+        <div class="kpi-grid" id="fcKpis"></div>
+        <div class="card"><div class="card-h"><div><h3>Historical &amp; forecast <span class="demo-pill">Demo data</span></h3><p id="fcSub">—</p></div></div>
+          <div class="chart-box tall"><canvas id="fcChart"></canvas><div class="chart-empty" id="fcEmpty">Not enough data to forecast (need at least 14 days of records).</div></div></div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="calendar-clock"></i> High-waste days</h3><p>Highest daily totals in the selected period</p></div></div><ul class="list" id="fcHigh"></ul></div>
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="siren"></i> Unusual waste patterns</h3><p>Days far from the model's expected value (|z| &gt; 2.2)</p></div></div><ul class="list" id="fcAnom"></ul></div>
+        </div>
+        <div class="grid g-13 mt">
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="target"></i> Waste reduction strategies</h3><p>Suggestions derived from your data</p></div></div><ul class="list" id="fcStrat"></ul></div>
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="flask-conical"></i> How the forecast works</h3></div></div><div id="fcMethod" class="note" style="font-size:13px;line-height:1.65"></div></div>
+        </div>
+      </section>
+
+      <!-- ============ 5. BSF PROCESSING ============ -->
+      <section class="page" id="page-bsf">
+        <div class="sec-head"><div><h2>Black Soldier Fly processing</h2><p>From food waste to organic fertilizer and protein meal — values are computed from the records in view.</p></div></div>
+        <div class="card"><div class="card-h"><div><h3>Waste-to-resource conversion flow <span class="demo-pill">Demo data</span></h3><p>Animated process view of the BioPod loop</p></div></div><div class="flow" id="flow"></div></div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>Processing progress</h3></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>Waste processed of collected</span><b id="bsfPct">—</b></div>
+            <div class="progress"><span id="bsfBar" style="width:0%"></span></div>
+            <div class="mt"><div class="metric"><span>Total input waste<small>Collected in the period</small></span><b id="bsfIn">—</b></div>
+              <div class="metric"><span>Larvae consumption<small>Larvae used (kg, as recorded)</small></span><b id="bsfLar">—</b></div>
+              <div class="metric"><span>Fertilizer output<small>Frass / organic compost</small></span><b id="bsfFert">—</b></div>
+              <div class="metric"><span>Protein meal output<small>Dried larvae meal</small></span><b id="bsfProt">—</b></div>
+              <div class="metric"><span>Processing efficiency<small>Processed ÷ collected</small></span><b id="bsfEff">—</b></div>
+              <div class="metric"><span>Resource recovery<small>(Fertilizer + protein) ÷ processed</small></span><b id="bsfRec">—</b></div>
+              <div class="metric"><span>Waste fed per kg larvae<small>Processed ÷ larvae used</small></span><b id="bsfFeed">—</b></div></div></div>
+          <div class="card"><div class="card-h"><div><h3>Efficiency trend <span class="demo-pill">Demo data</span></h3><p>Weekly processing rate and resource recovery (%)</p></div></div>
+            <div class="chart-box"><canvas id="bsfChart"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="grid g3 mt">
+          <div class="card hover"><h3 style="color:var(--forest);margin-bottom:8px">Why BSF?</h3><p class="note" style="font-size:13px">Black Soldier Fly larvae (<i>Hermetia illucens</i>) consume a wide range of kitchen waste quickly, convert it into larval biomass rich in protein and fat, and leave behind a nutrient-rich frass that works as organic fertilizer.</p></div>
+          <div class="card hover"><h3 style="color:var(--forest);margin-bottom:8px">The BioPod</h3><p class="note" style="font-size:13px">A compact, solar-backed BSF unit with ventilation, mesh separation and a drainage outlet. Sensors (temperature, humidity, moisture) feed this dashboard — see IoT Monitoring.</p></div>
+          <div class="card hover"><h3 style="color:var(--forest);margin-bottom:8px">Good operating practice</h3><p class="note" style="font-size:13px">Shred waste, feed in thin layers, keep substrate moist but not waterlogged, keep temperature in the warm range, and avoid excess oil or liquids. Ask BioBot for tips tuned to your numbers.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. IOT ============ -->
+      <section class="page" id="page-iot">
+        <div class="sec-head"><div><h2>IoT monitoring</h2><p>Temperature, humidity and substrate moisture of the BioPod, with configurable thresholds and alerts.</p></div>
+          <div class="btns"><span class="pill gray" id="iotConn"><span class="live-dot sim"></span> Simulated</span><button class="btn btn-ghost btn-sm" data-act="iot-fault"><i data-lucide="zap"></i> Simulate abnormal event</button></div></div>
+        <div class="callout warn" id="iotNote"><i data-lucide="info"></i><span><b>Simulated readings.</b> No hardware is connected — values below are generated for demonstration and are not real measurements. Connect an ESP32 endpoint below to show live readings.</span></div>
+        <div class="grid g3 mt" id="sensorCards"></div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>Live sensor stream</h3><p id="iotStreamSub">Last 60 readings</p></div></div><div class="chart-box"><canvas id="ioLive"></canvas></div></div>
+          <div class="card"><div class="card-h"><div><h3>Historical sensor averages <span class="demo-pill">Demo data</span></h3><p>Daily averages from imported records (Temperature, Humidity, Moisture columns)</p></div></div><div class="chart-box"><canvas id="ioHist"></canvas><div class="chart-empty">No sensor values found in the selected date range.</div></div></div>
+        </div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="bell-ring"></i> Alerts</h3><p>Abnormal conditions detected by the threshold rules</p></div><button class="btn btn-ghost btn-sm" data-act="iot-clear-alerts">Clear</button></div><div id="alertList" style="max-height:280px;overflow:auto"></div></div>
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="sliders-horizontal"></i> Threshold levels</h3><p>Warning and critical limits (editable, saved in this browser)</p></div></div>
+            <div class="thr-grid" id="thrGrid"></div>
+            <div class="btns mt"><button class="btn btn-primary btn-sm" data-act="iot-save-th">Save thresholds</button><button class="btn btn-ghost btn-sm" data-act="iot-reset-th">Reset defaults</button></div></div>
+        </div>
+        <div class="card mt"><div class="card-h"><div><h3><i data-lucide="cpu"></i> ESP32 / hardware connection</h3><p>Ready for future integration — the dashboard polls a JSON endpoint on your local network</p></div></div>
+          <div class="grid g-13"><div>
+            <label class="lbl">Sensor endpoint URL (returns JSON)</label><input class="inp" id="iotUrl" placeholder="http://192.168.1.50/sensors">
+            <div class="btns mt"><button class="btn btn-primary btn-sm" data-act="iot-connect">Connect (live)</button><button class="btn btn-ghost btn-sm" data-act="iot-sim">Use simulated data</button></div>
+            <p class="note mt">Expected response: <code>{"temperature":30.2,"humidity":64,"moisture":66}</code>. The device must send the header <code>Access-Control-Allow-Origin: *</code>.</p></div>
+            <details><summary>Example ESP32 sketch</summary><pre class="code">#include &lt;WiFi.h&gt;
+#include &lt;WebServer.h&gt;
+#include &lt;DHT.h&gt;
+DHT dht(4, DHT22);          // temp + humidity
+const int MOIST_PIN = 34;   // analog moisture probe
+WebServer server(80);
+
+void handleSensors() {
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  int raw = analogRead(MOIST_PIN);
+  float m = map(raw, 3200, 1200, 0, 100); // calibrate!
+  String j = "{\"temperature\":" + String(t,1) +
+             ",\"humidity\":" + String(h,0) +
+             ",\"moisture\":" + String(m,0) + "}";
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200, "application/json", j);
+}
+void setup() {
+  dht.begin();
+  WiFi.begin("SSID", "PASSWORD");
+  while (WiFi.status() != WL_CONNECTED) delay(300);
+  server.on("/sensors", handleSensors);
+  server.begin();
+}
+void loop() { server.handleClient(); }</pre></details></div></div>
+      </section>
+
+      <!-- ============ 7. SUSTAINABILITY ============ -->
+      <section class="page" id="page-impact">
+        <div class="sec-head"><div><h2>Sustainability impact</h2><p>Environmental benefits calculated from your processed volumes using the documented assumptions below.</p></div></div>
+        <div class="grid g4" id="impStats"></div>
+        <div class="grid g3 mt">
+          <div class="card" style="text-align:center"><div class="card-h" style="justify-content:center"><h3>Landfill diversion</h3></div><div class="ring"><svg viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="ringA" cx="75" cy="75" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6"/></svg><div class="tx"><div><span id="ringAv">0%</span><small>of collected</small></div></div></div></div>
+          <div class="card" style="text-align:center"><div class="card-h" style="justify-content:center"><h3>Resource recovery</h3></div><div class="ring"><svg viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="ringB" cx="75" cy="75" r="62" stroke="#9BD13C" stroke-dasharray="389.6" stroke-dashoffset="389.6"/></svg><div class="tx"><div><span id="ringBv">0%</span><small>of processed mass</small></div></div></div></div>
+          <div class="card"><div class="card-h"><h3>Output mix (processed waste)</h3></div><div class="chart-box short"><canvas id="imMix"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="grid g2 mt">
+          <div class="card"><div class="card-h"><div><h3>Cumulative CO₂ avoided <span class="demo-pill">Demo data</span></h3><p>Estimated kg CO₂e, running total over the period</p></div></div><div class="chart-box"><canvas id="imCum"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+          <div class="card"><div class="card-h"><div><h3>Diversion rate by hostel <span class="demo-pill">Demo data</span></h3><p>Processed ÷ collected (%)</p></div></div><div class="chart-box"><canvas id="imHostel"></canvas><div class="chart-empty">No records in the selected date range.</div></div></div>
+        </div>
+        <div class="card mt"><div class="card-h"><div><h3><i data-lucide="calculator"></i> Calculation assumptions</h3><p>These are configurable placeholders, not audited figures. Published emission factors vary widely — replace them with values from your own audit or a recognised standard.</p></div></div>
+          <div class="assump" id="assumpGrid"></div>
+          <div class="callout vio mt"><i data-lucide="function-square"></i><span id="assumpFormula">—</span></div>
+          <div class="btns mt"><button class="btn btn-primary btn-sm" data-act="assump-save">Save assumptions</button><button class="btn btn-ghost btn-sm" data-act="assump-reset">Reset defaults</button></div>
+          <p class="note mt">Context from the BioLoop pitch: India generates about 68.8 million tonnes of food waste a year and less than 5% of organic waste is composted or recycled; landfills are a major methane source. These are pitch-deck figures, not computed by this dashboard.</p></div>
+      </section>
+
+      <!-- ============ 8. REPORTS ============ -->
+      <section class="page" id="page-reports">
+        <div class="sec-head"><div><h2>Reports &amp; exports</h2><p>Choose a report, review the preview and download it as CSV, Excel or PDF. The period follows the date filter at the top.</p></div></div>
+        <div class="rtypes" id="rTypes"></div>
+        <div class="card"><div class="card-h"><div><h3 id="rTitle">Report</h3><p id="rPeriod">—</p></div>
+          <div class="btns"><button class="btn btn-ghost btn-sm" data-act="rep-csv"><i data-lucide="download"></i> CSV</button><button class="btn btn-ghost btn-sm" data-act="rep-xlsx"><i data-lucide="file-spreadsheet"></i> Excel</button><button class="btn btn-primary btn-sm" data-act="rep-pdf"><i data-lucide="file-text"></i> PDF</button></div></div>
+          <div class="mini-kpis" id="rKpis"></div>
+          <div class="grid g2 mt"><div><div class="chart-box short"><canvas id="rp1"></canvas><div class="chart-empty">No data.</div></div></div><div><div class="chart-box short"><canvas id="rp2"></canvas><div class="chart-empty">No data.</div></div></div></div>
+          <div class="grid g-13 mt"><div><h4 style="color:var(--forest);margin-bottom:8px">Report data</h4><div class="tscroll"><table class="tbl" id="rTbl"></table></div></div>
+            <div><h4 style="color:var(--forest);margin-bottom:8px">Key observations</h4><ul class="list" id="rObs"></ul></div></div>
+        </div>
+      </section>
+
+      <!-- ============ 9. AI ASSISTANT ============ -->
+      <section class="page" id="page-assistant">
+        <div class="sec-head"><div><h2>AI assistant — BioBot</h2><p>Your sustainability assistant. Available as the floating chat button on every page.</p></div><button class="btn btn-primary" data-act="chat-open"><i data-lucide="message-circle"></i> Open BioBot</button></div>
+        <div class="grid g2">
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="database-zap"></i> Local data assistant (always on)</h3><p>Works offline, no API required</p></div><span class="pill green">Local</span></div>
+            <p class="note" style="font-size:13px;margin-bottom:10px">BioBot queries the records you imported (or the labelled demo data) and calculates the answer in JavaScript — totals, rankings, trends, forecasts, anomalies, sustainability metrics and BSF guidance. Try:</p>
+            <div class="btns" id="asSuggest"></div></div>
+          <div class="card"><div class="card-h"><div><h3><i data-lucide="plug-zap"></i> Optional external AI</h3><p>For open-ended conversation beyond the local analytics</p></div><span class="pill gray" id="aiState">Not configured</span></div>
+            <div class="callout warn" style="margin-bottom:12px"><i data-lucide="key-round"></i><span><b>Never put an API key in this page.</b> Point BioBot to <i>your own server endpoint</i> that holds the key and forwards the request to the AI provider.</span></div>
+            <label class="lbl">Proxy endpoint URL</label><input class="inp" id="aiUrl" placeholder="https://your-server.example.com/api/biobot">
+            <label class="lbl mt">Mode</label>
+            <div class="seg" id="aiModeSeg"><button data-act="ai-mode" data-arg="local" class="on">Local only</button><button data-act="ai-mode" data-arg="hybrid">Hybrid</button><button data-act="ai-mode" data-arg="external">External first</button></div>
+            <p class="note mt"><b>Hybrid:</b> local analytics answer data questions; the external AI handles everything else. <b>External first:</b> every question is sent with a dashboard summary as context; if it fails, BioBot falls back to local.</p>
+            <div class="btns mt"><button class="btn btn-primary btn-sm" data-act="ai-save">Save</button><button class="btn btn-ghost btn-sm" data-act="ai-test">Test connection</button></div>
+            <details class="mt"><summary>Request / response contract</summary><pre class="code">POST {endpoint}
+{ "question": "…", "history": [{"role":"user","content":"…"}],
+  "context": { "dataSource":"demo|imported", "period":"…",
+               "kpis":{…}, "byHostel":[…], "byFood":[…], "forecast":{…} } }
+
+→ 200 { "reply": "answer text" }
+(also accepted: {"answer":…}, {"text":…}, or OpenAI-style choices[0].message.content)</pre></details></div>
+        </div>
+        <div class="card mt"><div class="card-h"><div><h3>What BioBot can do</h3></div></div>
+          <div class="grid g3"><ul class="list"><li><span class="dot"><i data-lucide="calculator"></i></span><span>Calculate totals, averages and comparisons from your records for any period or hostel</span></li><li><span class="dot"><i data-lucide="trophy"></i></span><span>Rank hostels and food types, find peak days</span></li><li><span class="dot"><i data-lucide="trending-up"></i></span><span>Identify trends and explain what changed</span></li></ul>
+          <ul class="list"><li><span class="dot vio"><i data-lucide="brain-circuit"></i></span><span>Forecast waste, fertilizer and protein meal (estimates)</span></li><li><span class="dot warn"><i data-lucide="siren"></i></span><span>Flag unusual patterns and sensor alerts</span></li><li><span class="dot"><i data-lucide="chart-pie"></i></span><span>Explain the charts on the current page</span></li></ul>
+          <ul class="list"><li><span class="dot"><i data-lucide="bug"></i></span><span>Explain BSF technology and the conversion process</span></li><li><span class="dot"><i data-lucide="leaf"></i></span><span>Explain sustainability metrics and their assumptions</span></li><li><span class="dot"><i data-lucide="wrench"></i></span><span>Suggest operational and waste-reduction actions</span></li></ul></div></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ===================== CHATBOT ===================== -->
+<button class="chat-fab" id="chatFab" data-act="chat-toggle" aria-label="Open BioBot chat"><span class="fab-ico"><i data-lucide="bot"></i></span><span class="fab-label">Ask BioBot</span></button>
+<div class="chat" id="chat" role="dialog" aria-label="BioBot chat" aria-hidden="true">
+  <div class="chat-head">
+    <div class="av bot"><i data-lucide="leaf"></i></div>
+    <div class="t"><b>BioBot</b><small>Your Sustainability Assistant</small></div>
+    <button class="hb" data-act="chat-clear" title="Clear chat" aria-label="Clear chat"><i data-lucide="eraser"></i></button>
+    <button class="hb" data-act="chat-settings" title="AI settings" aria-label="AI settings"><i data-lucide="settings-2"></i></button>
+    <button class="hb" data-act="chat-close" title="Close" aria-label="Close chat"><i data-lucide="x"></i></button>
+  </div>
+  <div class="chat-mode"><span id="chatModeTxt">Local data assistant</span><span id="chatDataTxt">—</span></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-suggest" id="chatSuggest"></div>
+  <form class="chat-input" id="chatForm" autocomplete="off"><input id="chatInput" placeholder="Ask about your waste data…" aria-label="Message BioBot"><button class="send" type="submit" aria-label="Send"><i data-lucide="send"></i></button></form>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-bg" id="confirmBg"><div class="modal"><h3 id="cmTitle">Confirm</h3><p id="cmMsg"></p><div class="btns"><button class="btn btn-ghost" id="cmNo">Cancel</button><button class="btn btn-danger" id="cmYes">Confirm</button></div></div></div>
+<div class="modal-bg" id="settingsBg"><div class="modal"><h3>Settings &amp; preferences</h3><p>Stored only in this browser.</p>
+  <label class="lbl">Organisation name</label><input class="inp" id="setOrg">
+  <div class="btns mt" style="justify-content:space-between"><button class="btn btn-danger btn-sm" data-act="settings-reset">Reset all app data</button><div class="btns"><button class="btn btn-ghost" data-act="settings-close">Cancel</button><button class="btn btn-primary" data-act="settings-save">Save</button></div></div></div></div>
+
+<script>
+/* =====================================================================
+   BIOLOOP AI — APPLICATION SCRIPT
+   Sections:
+    0 Utilities & dates      1 State & storage        2 Demo data generator
+    3 Import (parse/map/validate)  4 Calculations (KPIs, series, assumptions)
+    5 Forecasting & anomalies     6 Chart helpers     7 Page renderers
+    8 IoT simulator               9 Exports & reports (CSV/XLSX/PDF)
+   10 BioBot (local engine + optional external)  11 UI wiring & init
+   ===================================================================== */
+'use strict';
+
+/* ---------- 0. UTILITIES & DATES ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = (n, d = 0) => Number.isFinite(n) ? n.toLocaleString('en-IN', {minimumFractionDigits: d, maximumFractionDigits: d}) : '—';
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const round = (n, d = 2) => { const p = Math.pow(10, d); return Math.round((+n + Number.EPSILON) * p) / p; };
+const sumBy = (arr, k) => arr.reduce((a, r) => a + (r[k] || 0), 0);
+const DAY = 864e5, MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOWS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const pISO = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const toISO = ms => new Date(ms).toISOString().slice(0, 10);
+const addD = (s, n) => toISO(pISO(s) + n * DAY);
+const dowOf = s => new Date(pISO(s)).getUTCDay();
+const weekStart = s => addD(s, -((dowOf(s) + 6) % 7));
+const daysBetween = (a, b) => Math.round((pISO(b) - pISO(a)) / DAY);
+const fmtD = s => { const d = new Date(pISO(s)); return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); };
+const fmtDS = s => { const d = new Date(pISO(s)); return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; };
+const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const monthLabel = k => MONTHS[+k.slice(5, 7) - 1] + ' ' + k.slice(0, 4);
+const ic = () => { try { window.lucide && lucide.createIcons(); } catch (e) {} };
+const mulberry32 = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+function toast(msg, type = '') {
+  const box = $('#toasts'); if (!box) return;
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.innerHTML = '<span>' + esc(msg) + '</span>'; box.appendChild(t);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, 3800);
+}
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+function confirmBox(title, msg, yes = 'Confirm') {
+  return new Promise(res => {
+    $('#cmTitle').textContent = title; $('#cmMsg').textContent = msg; $('#cmYes').textContent = yes; $('#confirmBg').classList.add('show');
+    const done = v => { $('#confirmBg').classList.remove('show'); $('#cmYes').onclick = $('#cmNo').onclick = null; res(v); };
+    $('#cmYes').onclick = () => done(true); $('#cmNo').onclick = () => done(false);
+  });
+}
+
+/* ---------- 1. STATE & STORAGE ---------- */
+const LS = {data: 'bioloop.data.v1', settings: 'bioloop.settings.v1', chat: 'bioloop.chat.v1'};
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+const DEFAULT_SETTINGS = {
+  org: 'Green Think Tank', preset: '30', from: '', to: '', hostel: 'all',
+  assump: {landfill: 0.5, process: 0.08, feedCredit: 0, tree: 21, fertPrice: 10, proteinPrice: 40, disposal: 2},
+  thresholds: {temp: {wl: 24, wh: 35, cl: 18, ch: 40}, humidity: {wl: 50, wh: 75, cl: 40, ch: 85}, moisture: {wl: 55, wh: 75, cl: 45, ch: 82}},
+  iot: {mode: 'sim', url: ''}, ai: {mode: 'local', url: ''}
+};
+const deepMerge = (b, o) => { const r = Array.isArray(b) ? b.slice() : Object.assign({}, b); if (o && typeof o === 'object') for (const k in o) r[k] = (b && typeof b[k] === 'object' && b[k] && !Array.isArray(b[k])) ? deepMerge(b[k], o[k]) : o[k]; return r; };
+const S = {
+  records: [], demo: [], settings: deepMerge(DEFAULT_SETTINGS, {}), imp: null, charts: {}, page: 'overview', chat: [], rng: {min: '', max: ''},
+  ui: {gran: 'day', horizon: 30, pm: 'collected', repType: 'daily', tblPage: 0, impMode: 'replace'},
+  sensor: {vals: {temp: 30.1, humidity: 63, moisture: 65}, hist: {labels: [], temp: [], humidity: [], moisture: []}, status: {}, alerts: [], conn: 'sim', fault: 0, fails: 0, last: null}
+};
+const saveSettings = () => lsSet(LS.settings, S.settings);
+const recs = () => S.records.length ? S.records : S.demo;
+const isDemo = () => !S.records.length;
+function computeRange() { const r = recs(); let mn = '9999', mx = '0000'; for (const x of r) { if (x.date < mn) mn = x.date; if (x.date > mx) mx = x.date; } S.rng = r.length ? {min: mn, max: mx} : {min: todayISO(), max: todayISO()}; }
+const dataRange = () => S.rng;
+function resolveRange() {
+  const {min, max} = dataRange(), f = S.settings; let from, to;
+  if (f.preset === 'all') { from = min; to = max; }
+  else if (f.preset === 'custom') { from = f.from || min; to = f.to || max; }
+  else { to = max; from = addD(max, -(+f.preset - 1)); }
+  if (from > to) [from, to] = [to, from];
+  return {from, to};
+}
+function prevRange() {
+  const {from, to} = resolveRange(), {min} = dataRange();
+  if (S.settings.preset === 'all') return null;
+  const len = daysBetween(from, to) + 1, pTo = addD(from, -1), pFrom = addD(pTo, -(len - 1));
+  return pTo < min ? null : {from: pFrom, to: pTo};
+}
+const hostelOK = r => S.settings.hostel === 'all' || r.hostel === S.settings.hostel;
+const inRange = (rg) => recs().filter(r => r.date >= rg.from && r.date <= rg.to && hostelOK(r));
+const filtered = () => inRange(resolveRange());
+const prevFiltered = () => { const p = prevRange(); return p ? inRange(p) : []; };
+const hostelList = () => Array.from(new Set(recs().map(r => r.hostel))).sort();
+const periodLabel = rg => (rg || resolveRange()).from === (rg || resolveRange()).to ? fmtD((rg || resolveRange()).from) : fmtD((rg || resolveRange()).from) + ' – ' + fmtD((rg || resolveRange()).to);
+
+/* ---------- 2. DEMO DATA GENERATOR (labelled sample data) ---------- */
+function genDemo() {
+  const rnd = mulberry32(2026), end = todayISO(), N = 120, out = [];
+  const hostels = [['Aryabhatta Hostel', 1.2], ['Gargi Hostel', 0.95], ['Vivekananda Hostel', 1.45], ['Kalpana Hostel', 0.8]];
+  const foods = [['Rice', .30], ['Dal', .13], ['Roti', .17], ['Vegetables', .22], ['Paneer', .06], ['Other', .12]];
+  const dowF = [1.15, .95, .95, 1.0, 1.0, 1.05, 1.12], spikes = {38: 1, 71: 2, 104: 0};
+  for (let i = 0; i < N; i++) {
+    const date = addD(end, -(N - 1 - i)), dw = dowOf(date), trend = 1 + 0.12 * i / N, ratio = 0.76 + 0.17 * i / N;
+    hostels.forEach(([h, hf], hi) => {
+      let base = 21 * hf * dowF[dw] * trend * (0.88 + rnd() * 0.24);
+      if (spikes[i] === hi) base *= 1.9;
+      const temp = 29.5 + Math.sin(i / 9) * 1.6 + (rnd() - .5) * 2, hum = 63 + (rnd() - .5) * 10, moi = 65 + (rnd() - .5) * 8;
+      foods.forEach(([f, share]) => {
+        const col = base * share * (0.8 + rnd() * 0.4), pr = Math.min(col, col * ratio * (0.95 + rnd() * 0.1));
+        out.push({date, hostel: h, food: f, collected: round(col), processed: round(pr), larvae: round(pr * 0.04), fertilizer: round(pr * 0.18 * (0.92 + rnd() * 0.16)), protein: round(pr * 0.05 * (0.9 + rnd() * 0.2)), temp: round(temp + (rnd() - .5) * .4, 1), humidity: round(hum + (rnd() - .5) * 2, 0), moisture: round(moi + (rnd() - .5) * 2, 0)});
+      });
+    });
+  }
+  return out;
+}
+
+/* ---------- 3. IMPORT: PARSE, MAP, VALIDATE ---------- */
+const FIELDS = [
+  {key: 'date', label: 'Date', req: true, type: 'date', syn: ['date', 'day', 'timestamp', 'collection date', 'dt']},
+  {key: 'hostel', label: 'Hostel', type: 'text', syn: ['hostel', 'block', 'mess', 'location', 'building', 'campus', 'site']},
+  {key: 'food', label: 'Food Type', type: 'text', syn: ['food type', 'food', 'food category', 'waste type', 'category', 'item', 'dish']},
+  {key: 'collected', label: 'Waste Collected', req: true, type: 'num', syn: ['waste collected', 'collected', 'food waste', 'total waste', 'waste kg', 'waste', 'input waste']},
+  {key: 'processed', label: 'Waste Processed', type: 'num', syn: ['waste processed', 'processed', 'treated', 'waste treated', 'processed waste']},
+  {key: 'larvae', label: 'Larvae Used', type: 'num', syn: ['larvae used', 'larvae', 'bsf larvae', 'larva']},
+  {key: 'fertilizer', label: 'Fertilizer Produced', type: 'num', syn: ['fertilizer produced', 'fertilizer', 'fertiliser', 'frass', 'compost', 'manure']},
+  {key: 'protein', label: 'Protein Meal Produced', type: 'num', syn: ['protein meal produced', 'protein meal', 'protein', 'larvae meal', 'feed produced']},
+  {key: 'temp', label: 'Temperature', type: 'num', syn: ['temperature', 'temp']},
+  {key: 'humidity', label: 'Humidity', type: 'num', syn: ['humidity', 'rh', 'relative humidity']},
+  {key: 'moisture', label: 'Moisture', type: 'num', syn: ['moisture', 'substrate moisture', 'moisture content']}
+];
+const NUMF = FIELDS.filter(f => f.type === 'num');
+const normH = h => String(h).toLowerCase().replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+function autoMap(headers) {
+  const map = {}, used = new Set(), nh = headers.map(h => ({h, n: normH(h)}));
+  FIELDS.forEach(f => { const c = [f.label, ...f.syn].map(normH); const hit = nh.find(x => !used.has(x.h) && c.includes(x.n)); if (hit) { map[f.key] = hit.h; used.add(hit.h); } });
+  FIELDS.forEach(f => {
+    if (map[f.key]) return; const c = [f.label, ...f.syn].map(normH).filter(x => x.length >= 3); let best = null, bl = 0;
+    nh.forEach(x => { if (used.has(x.h)) return; c.forEach(k => { if ((x.n.includes(k) || (x.n.length >= 4 && k.includes(x.n))) && k.length > bl) { bl = k.length; best = x; } }); });
+    if (best) { map[f.key] = best.h; used.add(best.h); }
+  });
+  return map;
+}
+function parseNum(v) { if (typeof v === 'number') return Number.isFinite(v) ? v : null; const s = String(v).replace(/,/g, '').replace(/[^\d.\-eE+]/g, ''); if (!s || s === '-' || s === '.') return null; const n = parseFloat(s); return Number.isFinite(n) ? n : null; }
+function parseDate(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (v instanceof Date) return isNaN(v) ? null : v.getFullYear() + '-' + pad(v.getMonth() + 1) + '-' + pad(v.getDate());
+  let s = String(v).trim(); if (!s) return null;
+  if (/^\d{5}(\.\d+)?$/.test(s) || (typeof v === 'number' && v > 20000 && v < 80000)) { const n = Math.floor(parseFloat(s)); return toISO((n - 25569) * DAY); }
+  let m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/); if (m) return okDate(+m[1], +m[2], +m[3]);
+  m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/); if (m) { let y = +m[3]; if (y < 100) y += 2000; let d = +m[1], mo = +m[2]; if (mo > 12 && d <= 12) [d, mo] = [mo, d]; return okDate(y, mo, d); }
+  m = s.match(/^(\d{1,2})[-\s\/]([A-Za-z]{3,9})[-\s\/,]*(\d{2,4})/); if (m) { const mi = MONTHS.findIndex(x => x.toLowerCase() === m[2].slice(0, 3).toLowerCase()); if (mi >= 0) { let y = +m[3]; if (y < 100) y += 2000; return okDate(y, mi + 1, +m[1]); } }
+  const t = Date.parse(s); if (!isNaN(t)) { const d = new Date(t); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  return null;
+}
+function okDate(y, m, d) { if (y < 1990 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null; const dt = new Date(Date.UTC(y, m - 1, d)); return dt.getUTCMonth() === m - 1 ? toISO(dt.getTime()) : null; }
+function analyzeImport(imp) {
+  const map = imp.mapping, out = {records: [], dupFlags: [], invalid: [], missing: {}, dupes: 0, negatives: 0, odd: 0, over: 0, warnings: [], errors: [], total: imp.rows.length};
+  FIELDS.forEach(f => out.missing[f.key] = 0);
+  FIELDS.filter(f => f.req && !map[f.key]).forEach(f => out.errors.push('Required column "' + f.label + '" is not mapped — choose the matching column above.'));
+  if (out.errors.length) return out;
+  const seen = new Set();
+  imp.rows.forEach((raw, i) => {
+    const rec = {}; let bad = null;
+    FIELDS.forEach(f => {
+      const col = map[f.key], v = col ? raw[col] : undefined, blank = v === undefined || v === null || String(v).trim() === '';
+      if (f.type === 'date') { const d = blank ? null : parseDate(v); rec.date = d; if (!d) { bad = blank ? 'Missing date' : 'Unreadable date "' + v + '"'; out.missing.date++; } }
+      else if (f.type === 'text') { rec[f.key] = blank ? (f.key === 'hostel' ? 'Main Campus' : 'Unspecified') : String(v).trim(); if (blank && col) out.missing[f.key]++; }
+      else { let n = blank ? null : parseNum(v); if (col && n === null) out.missing[f.key]++; if (n !== null && n < 0) { out.negatives++; n = null; } rec[f.key] = n; if (f.req && n === null && !bad) bad = 'Missing/invalid ' + f.label; }
+    });
+    if (bad) { out.invalid.push({row: i + 2, reason: bad}); return; }
+    if (rec.processed != null && rec.processed > rec.collected * 1.05 + 0.01) out.over++;
+    if ((rec.temp != null && (rec.temp < -5 || rec.temp > 70)) || (rec.humidity != null && rec.humidity > 100) || (rec.moisture != null && rec.moisture > 100)) out.odd++;
+    const key = [rec.date, rec.hostel, rec.food, ...NUMF.map(f => rec[f.key])].join('|');
+    const dup = seen.has(key); seen.add(key); if (dup) out.dupes++;
+    out.records.push(rec); out.dupFlags.push(dup);
+  });
+  if (!map.hostel) out.warnings.push('No Hostel column mapped — records are assigned to "Main Campus".');
+  if (!map.food) out.warnings.push('No Food Type column mapped — composition charts will show "Other".');
+  FIELDS.filter(f => !f.req && f.type === 'num' && !map[f.key]).forEach(f => out.warnings.push('Optional column "' + f.label + '" is not mapped — related KPIs will show 0.'));
+  return out;
+}
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (['csv', 'tsv', 'txt'].includes(ext)) {
+    if (!window.Papa) return toast('PapaParse library failed to load (check your internet connection).', 'err');
+    Papa.parse(file, {header: true, skipEmptyLines: 'greedy', transformHeader: h => String(h).trim(), complete: r => beginImport(file.name, r.meta.fields || [], r.data), error: e => toast('Could not read CSV: ' + e.message, 'err')});
+  } else if (['xlsx', 'xls'].includes(ext)) {
+    if (!window.XLSX) return toast('SheetJS library failed to load (check your internet connection).', 'err');
+    file.arrayBuffer().then(buf => {
+      const wb = XLSX.read(buf, {type: 'array'});
+      beginImport(file.name, null, null, wb);
+    }).catch(e => toast('Could not read Excel file: ' + e.message, 'err'));
+  } else toast('Unsupported file type ".' + ext + '". Please upload CSV, XLSX or XLS.', 'err');
+}
+function sheetToRows(wb, name) {
+  const aoa = XLSX.utils.sheet_to_json(wb.Sheets[name], {header: 1, defval: '', raw: true, blankrows: false});
+  if (!aoa.length) return {headers: [], rows: []};
+  const hdr = aoa[0].map((h, i) => String(h).trim() || 'Column ' + (i + 1)), seen = {};
+  const headers = hdr.map(h => { seen[h] = (seen[h] || 0) + 1; return seen[h] > 1 ? h + ' (' + seen[h] + ')' : h; });
+  const rows = aoa.slice(1).map(a => { const o = {}; headers.forEach((h, i) => o[h] = a[i] === undefined ? '' : a[i]); return o; });
+  return {headers, rows};
+}
+function beginImport(name, headers, rows, wb) {
+  let sheets = null;
+  if (wb) { sheets = wb.SheetNames; const first = sheets.find(n => sheetToRows(wb, n).rows.length) || sheets[0]; const r = sheetToRows(wb, first); headers = r.headers; rows = r.rows; }
+  if (!headers || !headers.length || !rows || !rows.length) return toast('The file appears to be empty or has no header row.', 'err');
+  S.imp = {name, headers, rows, wb, sheets, sheet: wb ? sheets.find(n => sheetToRows(wb, n).rows.length) || sheets[0] : null, mapping: autoMap(headers)};
+  S.ui.impMode = S.records.length ? 'append' : 'replace';
+  renderImportWizard(); toast('File read: ' + num(rows.length) + ' rows, ' + headers.length + ' columns.');
+}
+function commitImport() {
+  const imp = S.imp; if (!imp) return; const a = analyzeImport(imp);
+  if (a.errors.length) return toast('Fix the column mapping before importing.', 'err');
+  const skip = $('#optDupes').checked; let list = a.records.filter((r, i) => !(skip && a.dupFlags[i]));
+  if (S.ui.impMode === 'append') {
+    const key = r => [r.date, r.hostel, r.food, ...NUMF.map(f => r[f.key])].join('|'), ex = new Set(S.records.map(key));
+    if (skip) list = list.filter(r => !ex.has(key(r))); list = S.records.concat(list);
+  }
+  if (!list.length) return toast('No valid records to import.', 'err');
+  list.sort((x, y) => x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
+  if (!lsSet(LS.data, list)) return toast('Browser storage is full — the data could not be saved. Try a smaller file.', 'err');
+  S.records = list; S.imp = null; S.ui.tblPage = 0; S.settings.preset = 'all'; saveSettings(); computeRange();
+  $('#impWizard').classList.add('hide'); setSteps(1);
+  toast('Imported ' + num(list.length) + ' records. Dashboard updated.'); refreshAll(); go('overview');
+}
+
+/* ---------- 4. CALCULATIONS ---------- */
+const foodCat = f => { const s = String(f || '').toLowerCase(); if (/rice|biryani|pulao|khichdi/.test(s)) return 'Rice'; if (/dal|lentil|sambar|rajma|chana|dhal/.test(s)) return 'Dal'; if (/roti|chapati|chapatti|paratha|naan|bread|puri/.test(s)) return 'Roti'; if (/paneer|cheese/.test(s)) return 'Paneer'; if (/veg|sabzi|sabji|salad|curry|aloo|potato|gobi|palak/.test(s)) return 'Vegetables'; return 'Other'; };
+const FOOD_CATS = ['Rice', 'Dal', 'Roti', 'Vegetables', 'Paneer', 'Other'];
+const co2Of = (processed, protein) => { const A = S.settings.assump; return Math.max(0, processed * (A.landfill - A.process) + protein * A.feedCredit); };
+function kpis(rs) {
+  const t = {collected: sumBy(rs, 'collected'), processed: sumBy(rs, 'processed'), larvae: sumBy(rs, 'larvae'), fertilizer: sumBy(rs, 'fertilizer'), protein: sumBy(rs, 'protein'), n: rs.length};
+  t.diversion = t.collected ? Math.min(100, t.processed / t.collected * 100) : 0;
+  t.remaining = Math.max(0, t.collected - t.processed); t.co2 = co2Of(t.processed, t.protein);
+  t.recovery = t.processed ? (t.fertilizer + t.protein) / t.processed * 100 : 0;
+  t.days = new Set(rs.map(r => r.date)).size; return t;
+}
+const bucketKey = (d, g) => g === 'day' ? d : g === 'week' ? weekStart(d) : d.slice(0, 7);
+const bucketLabel = (k, g) => g === 'day' ? fmtDS(k) : g === 'week' ? 'Wk ' + fmtDS(k) : monthLabel(k);
+function seriesBy(rs, g) {
+  const m = new Map();
+  for (const r of rs) { const k = bucketKey(r.date, g); let b = m.get(k); if (!b) { b = {key: k, collected: 0, processed: 0, larvae: 0, fertilizer: 0, protein: 0, temp: 0, tn: 0, hum: 0, hn: 0, moi: 0, mn: 0}; m.set(k, b); }
+    b.collected += r.collected || 0; b.processed += r.processed || 0; b.larvae += r.larvae || 0; b.fertilizer += r.fertilizer || 0; b.protein += r.protein || 0;
+    if (r.temp != null) { b.temp += r.temp; b.tn++; } if (r.humidity != null) { b.hum += r.humidity; b.hn++; } if (r.moisture != null) { b.moi += r.moisture; b.mn++; } }
+  const a = Array.from(m.values()).sort((x, y) => x.key < y.key ? -1 : 1);
+  a.forEach(b => { b.remaining = Math.max(0, b.collected - b.processed); b.diversion = b.collected ? Math.min(100, b.processed / b.collected * 100) : 0; b.recovery = b.processed ? (b.fertilizer + b.protein) / b.processed * 100 : 0; b.co2 = co2Of(b.processed, b.protein); });
+  return a;
+}
+function groupTotals(rs, fn) {
+  const m = new Map(); for (const r of rs) { const k = fn(r); let a = m.get(k); if (!a) { a = []; m.set(k, a); } a.push(r); }
+  return Array.from(m, ([k, a]) => Object.assign({key: k}, kpis(a))).sort((x, y) => y.collected - x.collected);
+}
+const hostelTotals = rs => groupTotals(rs, r => r.hostel);
+const foodTotals = rs => { const g = groupTotals(rs, r => foodCat(r.food)); return FOOD_CATS.map(c => g.find(x => x.key === c) || {key: c, collected: 0, processed: 0, fertilizer: 0, protein: 0}); };
+function weekdayProfile(rs) {
+  const daily = seriesBy(rs, 'day'), s = Array(7).fill(0), c = Array(7).fill(0);
+  daily.forEach(d => { const w = dowOf(d.key); s[w] += d.collected; c[w]++; }); return s.map((v, i) => c[i] ? v / c[i] : 0);
+}
+function pctChange(cur, prev) { return prev > 0 ? (cur - prev) / prev * 100 : null; }
+
+/* ---------- 5. FORECASTING & ANOMALIES (transparent, no black box) ---------- */
+function fitModel(pts) {
+  const base = pts[0].date, n = pts.length, mean = pts.reduce((a, p) => a + p.y, 0) / n || 1;
+  const sum = Array(7).fill(0), cnt = Array(7).fill(0); pts.forEach(p => { const d = dowOf(p.date); sum[d] += p.y; cnt[d]++; });
+  let f = sum.map((s, i) => cnt[i] ? clamp(s / cnt[i] / mean, .5, 1.8) : 1); const fm = f.reduce((a, b) => a + b, 0) / 7; f = f.map(v => v / fm);
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  pts.forEach(p => { const x = daysBetween(base, p.date), y = p.y / f[dowOf(p.date)]; sx += x; sy += y; sxx += x * x; sxy += x * y; });
+  const den = n * sxx - sx * sx, b = den ? (n * sxy - sx * sy) / den : 0, a = (sy - b * sx) / n;
+  const m = {base, a, b, f, mean, lo: mean * .35, hi: mean * 2.4, sigma: 0}; let ss = 0;
+  pts.forEach(p => { const e = p.y - predictDay(m, p.date); ss += e * e; }); m.sigma = Math.max(Math.sqrt(ss / Math.max(1, n - 2)), 1e-6); return m;
+}
+function predictDay(m, date) { const lvl = clamp(m.a + m.b * daysBetween(m.base, date), m.lo, m.hi); return Math.max(0, lvl * m.f[dowOf(date)]); }
+function forecast(h, hostelOnly = true) {
+  const rs = recs().filter(r => !hostelOnly || hostelOK(r)), daily = seriesBy(rs, 'day');
+  if (daily.length < 14) return {ok: false, reason: 'Need at least 14 days of records to forecast (found ' + daily.length + ').'};
+  const win = daily.slice(-60), pts = win.map(d => ({date: d.key, y: d.collected})), m = fitModel(pts), last = daily[daily.length - 1].key;
+  let mape = null; if (pts.length >= 21) { const tr = fitModel(pts.slice(0, -7)), te = pts.slice(-7); mape = te.reduce((a, p) => a + (p.y ? Math.abs(p.y - predictDay(tr, p.date)) / p.y : 0), 0) / te.length * 100; }
+  const l30 = daily.slice(-30), sp = sumBy(l30, 'processed'), sc = sumBy(l30, 'collected') || 1;
+  const rP = clamp(sp / sc, 0, 1), rF = sp ? sumBy(l30, 'fertilizer') / sp : 0, rR = sp ? sumBy(l30, 'protein') / sp : 0;
+  const days = []; for (let i = 1; i <= h; i++) { const date = addD(last, i), y = predictDay(m, date), w = m.sigma * 1.28 * (1 + i / 90); days.push({date, y, lo: Math.max(0, y - w), hi: y + w}); }
+  const tot = {collected: sumBy(days, 'y')}; tot.processed = tot.collected * rP; tot.fertilizer = tot.processed * rF; tot.protein = tot.processed * rR;
+  tot.lo = sumBy(days, 'lo'); tot.hi = sumBy(days, 'hi');
+  const actual = daily.slice(-h), act = {collected: sumBy(actual, 'collected'), fertilizer: sumBy(actual, 'fertilizer'), protein: sumBy(actual, 'protein')};
+  return {ok: true, h, days, tot, act, model: m, mape, ratios: {rP, rF, rR}, daily, last, slopeWeek: m.b * 7, nDays: pts.length};
+}
+function anomalies(rs) {
+  const daily = seriesBy(rs, 'day'); if (daily.length < 14) return [];
+  const pts = daily.slice(-60).map(d => ({date: d.key, y: d.collected})), m = fitModel(pts);
+  return pts.map(p => { const e = predictDay(m, p.date); return {date: p.date, y: p.y, exp: e, z: (p.y - e) / m.sigma}; }).filter(x => Math.abs(x.z) > 2.2).sort((a, b) => Math.abs(b.z) - Math.abs(a.z));
+}
+function strategies(rs) {
+  const out = [], k = kpis(rs); if (!rs.length) return ['Import data to receive tailored suggestions.'];
+  const ht = hostelTotals(rs), ft = foodTotals(rs).filter(f => f.collected > 0).sort((a, b) => b.collected - a.collected), wp = weekdayProfile(rs);
+  if (ht.length > 1) out.push('**' + ht[0].key + '** generates ' + num(ht[0].collected / k.collected * 100, 0) + '% of waste (' + num(ht[0].collected) + ' kg). Start a plate-waste awareness drive and trial smaller first servings there; compare against **' + ht[ht.length - 1].key + '**, the lowest.');
+  if (ft.length) out.push('**' + ft[0].key + '** is the largest category (' + num(ft[0].collected / k.collected * 100, 0) + '%). Use batch-cooking quantities informed by the forecast and offer "half portion" options for this item.');
+  const mx = wp.indexOf(Math.max(...wp)); if (wp[mx] > 0) out.push('Waste peaks on **' + DOWS[mx] + 's** (avg ' + num(wp[mx], 0) + ' kg/day vs ' + num(wp.reduce((a, b) => a + b, 0) / wp.filter(v => v > 0).length, 0) + ' kg overall). Adjust that day\'s menu planning and prep volumes.');
+  if (k.diversion < 90) out.push('Only ' + num(k.diversion, 0) + '% of collected waste was processed — ' + num(k.remaining) + ' kg remains. Add feeding capacity or schedule an extra batch to avoid landfill leakage.');
+  out.push('Weigh waste at the mess exit daily and show hostel leaderboards — visible feedback usually lowers plate waste.');
+  out.push('Redirect clean surplus (unserved, safe food) to a food-sharing partner before it becomes waste.'); return out;
+}
+
+/* ---------- 6. CHART HELPERS ---------- */
+const C = {forest: '#123B2A', emerald: '#16A36A', lime: '#9BD13C', peach: '#F29E84', amber: '#E8A317', teal: '#4F9DA6', violet: '#8A7CC4', red: '#D64545'};
+const PALETTE = [C.emerald, C.forest, C.lime, C.peach, C.amber, C.teal, C.violet];
+function chartDefaults() { if (!window.Chart) return; Chart.defaults.font.family = "'Inter',system-ui,sans-serif"; Chart.defaults.font.size = 12; Chart.defaults.color = '#66756F'; Chart.defaults.plugins.tooltip.backgroundColor = '#123B2A'; Chart.defaults.plugins.tooltip.padding = 10; Chart.defaults.plugins.tooltip.cornerRadius = 10; }
+function axes(xt, yt, extra) { return Object.assign({x: {title: {display: !!xt, text: xt}, grid: {display: false}, ticks: {maxRotation: 0, autoSkip: true, maxTicksLimit: 12}}, y: {beginAtZero: true, title: {display: !!yt, text: yt}, grid: {color: 'rgba(18,59,42,.08)'}}}, extra || {}); }
+function baseOpts(xt, yt, extra) { return {responsive: true, maintainAspectRatio: false, interaction: {mode: 'index', intersect: false}, plugins: {legend: {position: 'bottom', labels: {usePointStyle: true, boxWidth: 8, padding: 16}}}, scales: axes(xt, yt, extra)}; }
+function mkChart(id, cfg, empty) {
+  const el = document.getElementById(id); if (!el || !window.Chart) return;
+  if (S.charts[id]) { S.charts[id].destroy(); delete S.charts[id]; }
+  const box = el.parentElement; if (box) box.classList.toggle('is-empty', !!empty); if (empty) return;
+  S.charts[id] = new Chart(el, cfg);
+}
+const lineDS = (label, data, color, o) => Object.assign({label, data, borderColor: color, backgroundColor: color + '22', tension: .35, borderWidth: 2.4, pointRadius: data.length > 45 ? 0 : 3, pointHoverRadius: 5, fill: false}, o || {});
+function cfgTrend(g, rs) {
+  const s = seriesBy(rs, g), L = s.map(b => bucketLabel(b.key, g));
+  return {type: 'line', data: {labels: L, datasets: [lineDS('Collected (kg)', s.map(b => round(b.collected)), C.forest, {backgroundColor: 'rgba(18,59,42,.08)', fill: true}), lineDS('Processed (kg)', s.map(b => round(b.processed)), C.emerald, {backgroundColor: 'rgba(22,163,106,.12)', fill: true})]}, options: baseOpts(g === 'day' ? 'Date' : g === 'week' ? 'Week starting' : 'Month', 'Food waste (kg)')};
+}
+function cfgDonut(rs) {
+  const ft = foodTotals(rs), tot = sumBy(ft, 'collected');
+  return {type: 'doughnut', data: {labels: ft.map(f => f.key), datasets: [{data: ft.map(f => round(f.collected)), backgroundColor: [C.emerald, C.peach, C.amber, C.lime, C.violet, C.teal], borderWidth: 3, borderColor: '#fff', hoverOffset: 10}]},
+    options: {responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: {legend: {position: 'right', labels: {usePointStyle: true, boxWidth: 8, padding: 14}}, tooltip: {callbacks: {label: c => ' ' + c.label + ': ' + num(c.parsed, 1) + ' kg (' + num(tot ? c.parsed / tot * 100 : 0, 1) + '%)'}}}}};
+}
+function cfgHostel(rs) {
+  const h = hostelTotals(rs), days = new Set(rs.map(r => r.date)).size || 1;
+  return {type: 'bar', data: {labels: h.map(x => x.key), datasets: [{label: 'Waste collected (kg)', data: h.map(x => round(x.collected)), backgroundColor: h.map((_, i) => PALETTE[i % PALETTE.length]), borderRadius: 8, barThickness: 'flex', maxBarThickness: 34}]},
+    options: Object.assign(baseOpts('Waste collected (kg)', null, {x: {beginAtZero: true, title: {display: true, text: 'Waste collected (kg)'}, grid: {color: 'rgba(18,59,42,.08)'}}, y: {grid: {display: false}}}), {indexAxis: 'y', plugins: {legend: {display: false}, tooltip: {callbacks: {afterLabel: c => 'Avg per day: ' + num(c.parsed.x / days, 1) + ' kg'}}}})};
+}
+function cfgResource(g, rs) {
+  const s = seriesBy(rs, g), L = s.map(b => bucketLabel(b.key, g));
+  return {type: 'line', data: {labels: L, datasets: [lineDS('Fertilizer (kg)', s.map(b => round(b.fertilizer)), C.lime, {yAxisID: 'y'}), lineDS('Protein meal (kg)', s.map(b => round(b.protein)), C.peach, {yAxisID: 'y1'})]},
+    options: baseOpts('Date', 'Fertilizer (kg)', {y1: {position: 'right', beginAtZero: true, title: {display: true, text: 'Protein meal (kg)'}, grid: {display: false}}})};
+}
+function cfgProcess(g, rs) {
+  const s = seriesBy(rs, g), L = s.map(b => bucketLabel(b.key, g));
+  const o = baseOpts('Date', 'Food waste (kg)'); o.scales.x.stacked = true; o.scales.y.stacked = true;
+  return {data: {labels: L, datasets: [{type: 'bar', label: 'Processed (kg)', data: s.map(b => round(Math.min(b.processed, b.collected))), backgroundColor: C.emerald, borderRadius: 4, stack: 's'}, {type: 'bar', label: 'Remaining (kg)', data: s.map(b => round(b.remaining)), backgroundColor: C.peach, borderRadius: 4, stack: 's'}, {type: 'line', label: 'Collected (kg)', data: s.map(b => round(b.collected)), borderColor: C.forest, borderWidth: 2, tension: .3, pointRadius: 0}]}, options: o};
+}
+function cfgImpact(g, rs) {
+  const s = seriesBy(rs, g), L = s.map(b => bucketLabel(b.key, g));
+  return {data: {labels: L, datasets: [{type: 'bar', label: 'CO₂ avoided (kg CO₂e)', data: s.map(b => round(b.co2)), backgroundColor: 'rgba(22,163,106,.55)', borderRadius: 6, yAxisID: 'y'}, {type: 'line', label: 'Landfill diversion (%)', data: s.map(b => round(b.diversion, 1)), borderColor: C.forest, tension: .35, borderWidth: 2.4, pointRadius: s.length > 45 ? 0 : 3, yAxisID: 'y1'}]},
+    options: baseOpts('Date', 'CO₂ avoided (kg CO₂e)', {y1: {position: 'right', min: 0, max: 100, title: {display: true, text: 'Diversion (%)'}, grid: {display: false}}})};
+}
+const whiteBg = {id: 'whiteBg', beforeDraw: c => { const x = c.ctx; x.save(); x.globalCompositeOperation = 'destination-over'; x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.restore(); }};
+function chartToImage(cfg, w = 640, h = 300) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  cfg.options = Object.assign({}, cfg.options, {responsive: false, animation: false, devicePixelRatio: 2}); cfg.plugins = (cfg.plugins || []).concat([whiteBg]);
+  const ch = new Chart(cv, cfg), url = cv.toDataURL('image/png'); ch.destroy(); return url;
+}
+
+/* ---------- 7. PAGE RENDERERS ---------- */
+const PAGES = [['overview', 'Overview', 'layout-dashboard', 'Your waste-to-resource performance at a glance'], ['analytics', 'Waste Analytics', 'chart-column', 'Interactive charts computed from your records'], ['import', 'Data Import', 'cloud-upload', 'Bring in CSV or Excel files from your hostels'], ['predictions', 'AI Predictions', 'brain-circuit', 'Forecasts, anomalies and reduction strategies'], ['bsf', 'BSF Processing', 'bug', 'From food waste to fertilizer and protein meal'], ['iot', 'IoT Monitoring', 'radio', 'Temperature, humidity and moisture of the BioPod'], ['impact', 'Sustainability Impact', 'leaf', 'Landfill diversion and estimated emissions avoided'], ['reports', 'Reports & Exports', 'file-text', 'Download CSV, Excel and PDF reports'], ['assistant', 'AI Assistant', 'bot', 'BioBot — your sustainability assistant']];
+function buildNav() {
+  $('#nav').innerHTML = '<div class="nav-label">Workspace</div>' + PAGES.map(p => '<button data-act="goto" data-arg="' + p[0] + '" data-nav="' + p[0] + '"><i data-lucide="' + p[2] + '"></i>' + p[1] + '</button>').join('');
+}
+function go(p) {
+  if (!PAGES.find(x => x[0] === p)) p = 'overview'; S.page = p;
+  $$('.page').forEach(e => e.classList.toggle('active', e.id === 'page-' + p)); $$('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === p));
+  const pg = PAGES.find(x => x[0] === p); $('#pageTitle').textContent = pg[1]; $('#pageSub').textContent = pg[3];
+  try { history.replaceState(null, '', '#' + p); } catch (e) {}
+  closeSidebar(); window.scrollTo({top: 0}); renderPage(p);
+}
+function renderPage(p) {
+  ({overview: renderOverview, analytics: renderAnalytics, import: renderImport, predictions: renderPredictions, bsf: renderBSF, iot: renderIoT, impact: renderImpact, reports: renderReports, assistant: renderAssistant}[p] || (() => {}))();
+  ic();
+}
+function refreshAll() {
+  document.body.classList.toggle('is-demo', isDemo()); $('#demoBanner').classList.toggle('show', isDemo());
+  const sel = $('#fHostel'), cur = S.settings.hostel, hs = hostelList(); if (cur !== 'all' && !hs.includes(cur)) S.settings.hostel = 'all';
+  sel.innerHTML = '<option value="all">All hostels</option>' + hs.map(h => '<option value="' + esc(h) + '">' + esc(h) + '</option>').join(''); sel.value = S.settings.hostel;
+  $('#fPreset').value = S.settings.preset; $('#fCustom').classList.toggle('hide', S.settings.preset !== 'custom');
+  const rg = resolveRange(); $('#fFrom').value = rg.from; $('#fTo').value = rg.to; $('#fFrom').min = $('#fTo').min = dataRange().min; $('#fFrom').max = $('#fTo').max = dataRange().max;
+  $('#sfData').textContent = isDemo() ? 'Demo data' : num(S.records.length) + ' records'; $('#sfOrg').textContent = S.settings.org;
+  updateChatHeader(); renderPage(S.page); updateSideSensor();
+}
+function updateSideSensor() { const st = S.sensor.conn; $('#sfSensor').textContent = st === 'live' ? 'Live' : st === 'offline' ? 'Offline' : 'Simulated'; $('#sfDot').className = 'live-dot ' + (st === 'live' ? '' : st === 'offline' ? 'off' : 'sim'); }
+
+/* --- Overview --- */
+const KPI_DEFS = [
+  {k: 'collected', l: 'Total Food Waste Collected', u: 'kg', i: 'trash-2', c: '#B45309', t: 'rgba(242,158,132,.22)', good: 'down', d: 0},
+  {k: 'processed', l: 'Total Waste Processed', u: 'kg', i: 'recycle', c: '#0E8556', t: 'rgba(22,163,106,.13)', good: 'up', d: 0},
+  {k: 'diversion', l: 'Waste Diverted from Landfill', u: '%', i: 'shield-check', c: '#123B2A', t: 'rgba(198,242,107,.35)', good: 'up', d: 1},
+  {k: 'fertilizer', l: 'Fertilizer Produced', u: 'kg', i: 'sprout', c: '#5E8A12', t: 'rgba(155,209,60,.25)', good: 'up', d: 0},
+  {k: 'protein', l: 'Protein Meal Produced', u: 'kg', i: 'beef', c: '#C2563A', t: 'rgba(242,158,132,.25)', good: 'up', d: 0},
+  {k: 'co2', l: 'Estimated CO₂ Avoided', u: 'kg CO₂e', i: 'cloud-off', c: '#276A73', t: 'rgba(79,157,166,.2)', good: 'up', d: 0}
+];
+function countUp(el, to, d) { const t0 = performance.now(), dur = 800; const step = t => { const p = clamp((t - t0) / dur, 0, 1), e = 1 - Math.pow(1 - p, 3); el.firstChild.nodeValue = num(to * e, d); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+function renderOverview() {
+  const rs = filtered(), pr = prevFiltered(), cur = kpis(rs), prv = kpis(pr), rg = resolveRange(), hasPrev = !!prevRange() && pr.length > 0;
+  const h = new Date().getHours(); $('#greet').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', ' + S.settings.org + ' 👋';
+  $('#hsPeriod').textContent = periodLabel(rg); $('#hsRecs').textContent = num(rs.length); $('#hsSrc').textContent = isDemo() ? 'Demo data' : 'Imported';
+  $('#kpiGrid').innerHTML = KPI_DEFS.map((d, i) => {
+    let tr = '<span class="trend flat">— no prior data</span>', cmp = hasPrev ? '' : 'No previous period to compare';
+    if (hasPrev) {
+      const isPct = d.k === 'diversion', diff = isPct ? cur[d.k] - prv[d.k] : pctChange(cur[d.k], prv[d.k]);
+      if (diff !== null) { const up = diff >= 0, good = (d.good === 'up') === up, flat = Math.abs(diff) < 0.05; tr = '<span class="trend ' + (flat ? 'flat' : good ? 'good' : 'bad') + '"><i data-lucide="' + (up ? 'trending-up' : 'trending-down') + '"></i>' + (up ? '+' : '') + num(diff, 1) + (isPct ? ' pts' : '%') + '</span>'; }
+      cmp = 'vs ' + num(prv[d.k], d.d) + ' ' + d.u + ' in previous period';
+    }
+    return '<div class="kpi" style="--c:' + d.c + ';--tint:' + d.t + ';animation-delay:' + i * 70 + 'ms"><div class="kpi-top"><span class="kpi-ico"><i data-lucide="' + d.i + '"></i></span>' + tr + '</div><div class="kpi-val" data-k="' + d.k + '">0<small>' + d.u + '</small></div><div class="kpi-label">' + d.l + '</div><div class="kpi-cmp">' + cmp + '</div></div>';
+  }).join('');
+  $$('.kpi-val').forEach(el => { const d = KPI_DEFS.find(x => x.k === el.dataset.k); countUp(el, cur[d.k], d.d); });
+  mkChart('ovTrend', cfgTrend('day', rs), !rs.length); mkChart('ovDonut', cfgDonut(rs), !rs.length); mkChart('ovHostel', cfgHostel(rs), !rs.length);
+  $('#ovInsights').innerHTML = insights(rs, pr).map(x => '<li><span class="dot ' + (x.t || '') + '"><i data-lucide="' + x.i + '"></i></span><span>' + md(x.s, true) + '</span></li>').join('');
+}
+function insights(rs, pr) {
+  if (!rs.length) return [{i: 'inbox', s: 'No records in this range. Adjust the date filter or import data.'}];
+  const k = kpis(rs), p = kpis(pr), out = [], ch = pctChange(k.collected, p.collected);
+  if (ch !== null) out.push({i: ch > 0 ? 'trending-up' : 'trending-down', t: ch > 5 ? 'warn' : '', s: 'Food waste collected is **' + (ch >= 0 ? 'up ' : 'down ') + num(Math.abs(ch), 1) + '%** vs the previous period (' + num(k.collected) + ' kg now).'});
+  const ht = hostelTotals(rs); if (ht.length > 1) out.push({i: 'building-2', s: '**' + ht[0].key + '** is the largest contributor with ' + num(ht[0].collected / k.collected * 100, 0) + '% of waste.'});
+  out.push({i: 'recycle', t: k.diversion < 85 ? 'warn' : '', s: '**' + num(k.diversion, 1) + '%** of collected waste was processed; ' + num(k.remaining) + ' kg is still unprocessed.'});
+  const wp = weekdayProfile(rs), mx = wp.indexOf(Math.max(...wp)); if (wp[mx] > 0) out.push({i: 'calendar', s: 'Peak waste day is **' + DOWS[mx] + '** (≈' + num(wp[mx], 0) + ' kg/day average).'});
+  const f = forecast(7); if (f.ok) out.push({i: 'brain-circuit', t: 'vio', s: 'Estimated waste for the next 7 days: **' + num(f.tot.collected) + ' kg** (forecast, not confirmed).'});
+  out.push({i: 'leaf', s: 'Estimated **' + num(k.co2) + ' kg CO₂e** avoided using your configured assumptions.'}); return out;
+}
+
+/* --- Analytics --- */
+function renderAnalytics() {
+  const rs = filtered(), g = S.ui.gran, e = !rs.length;
+  mkChart('anTrend', cfgTrend(g, rs), e); mkChart('anDonut', cfgDonut(rs), e); mkChart('anHostel', cfgHostel(rs), e);
+  mkChart('anResource', cfgResource(g, rs), e); mkChart('anProcess', cfgProcess(g, rs), e); mkChart('anImpact', cfgImpact(g, rs), e);
+  $$('#granSeg button').forEach(b => b.classList.toggle('on', b.dataset.arg === g));
+}
+
+/* --- Import --- */
+function setSteps(n) { [1, 2, 3, 4].forEach(i => { const e = $('#st' + i); e.classList.toggle('done', i <= n); }); }
+function renderImport() { renderStored(); if (S.imp) renderImportWizard(); }
+function renderImportWizard() {
+  const imp = S.imp; if (!imp) return; $('#impWizard').classList.remove('hide'); setSteps(3);
+  $('#impFile').textContent = imp.name + ' · ' + num(imp.rows.length) + ' rows · ' + imp.headers.length + ' columns' + (imp.sheet ? ' · sheet "' + imp.sheet + '"' : '');
+  $('#sheetPick').classList.toggle('hide', !(imp.sheets && imp.sheets.length > 1));
+  if (imp.sheets) $('#sheetSel').innerHTML = imp.sheets.map(s => '<option' + (s === imp.sheet ? ' selected' : '') + '>' + esc(s) + '</option>').join('');
+  $('#mapGrid').innerHTML = FIELDS.map(f => '<div><label class="lbl">' + f.label + (f.req ? ' <span style="color:var(--red)">*</span>' : '') + '</label><select class="inp" data-chg="map" data-key="' + f.key + '"><option value="">— not mapped —</option>' + imp.headers.map(h => '<option value="' + esc(h) + '"' + (imp.mapping[f.key] === h ? ' selected' : '') + '>' + esc(h) + '</option>').join('') + '</select></div>').join('');
+  const a = analyzeImport(imp), miss = Object.values(a.missing).reduce((x, y) => x + y, 0), valid = a.records.length;
+  $('#impChips').innerHTML = [['Rows read', a.total, ''], ['Valid rows', valid, valid ? 'ok' : 'bad'], ['Invalid rows', a.invalid.length, a.invalid.length ? 'bad' : 'ok'], ['Missing values', miss, miss ? 'warn' : 'ok'], ['Duplicate rows', a.dupes, a.dupes ? 'warn' : 'ok']].map(c => '<div class="stat-chip ' + c[2] + '"><small>' + c[0] + '</small><b>' + num(c[1]) + '</b></div>').join('');
+  const L = []; a.errors.forEach(x => L.push('<li><span class="dot bad"><i data-lucide="x"></i></span><span>' + esc(x) + '</span></li>'));
+  if (!a.errors.length) { L.push('<li><span class="dot"><i data-lucide="check"></i></span><span>All required columns are mapped. ' + num(valid) + ' rows are ready to import.</span></li>');
+    a.invalid.length && L.push('<li><span class="dot bad"><i data-lucide="x"></i></span><span>' + num(a.invalid.length) + ' rows will be skipped, e.g. row ' + a.invalid[0].row + ': ' + esc(a.invalid[0].reason) + '.</span></li>');
+    const mc = FIELDS.filter(f => a.missing[f.key] > 0).map(f => f.label + ' (' + a.missing[f.key] + ')'); mc.length && L.push('<li><span class="dot warn"><i data-lucide="alert-triangle"></i></span><span>Missing values: ' + esc(mc.join(', ')) + '. Missing numbers are treated as 0 in totals.</span></li>');
+    a.dupes && L.push('<li><span class="dot warn"><i data-lucide="copy"></i></span><span>' + a.dupes + ' duplicate rows detected (identical on every mapped column). Tick "Skip duplicate rows" to drop them.</span></li>');
+    a.negatives && L.push('<li><span class="dot warn"><i data-lucide="minus-circle"></i></span><span>' + a.negatives + ' negative numbers were ignored.</span></li>');
+    a.over && L.push('<li><span class="dot warn"><i data-lucide="alert-triangle"></i></span><span>' + a.over + ' rows have Processed &gt; Collected (possible backlog clearing or entry error).</span></li>');
+    a.odd && L.push('<li><span class="dot warn"><i data-lucide="alert-triangle"></i></span><span>' + a.odd + ' rows have unrealistic sensor values (e.g. humidity &gt; 100%).</span></li>');
+    a.warnings.forEach(w => L.push('<li><span class="dot warn"><i data-lucide="info"></i></span><span>' + esc(w) + '</span></li>')); L.push('<li><span class="dot"><i data-lucide="info"></i></span><span>Dates like 03/04/2026 are read as DD/MM/YYYY.</span></li>'); }
+  $('#impIssues').innerHTML = L.join('');
+  const cols = imp.headers.slice(0, 14);
+  $('#impPreview').innerHTML = '<thead><tr><th>#</th>' + cols.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' + imp.rows.slice(0, 8).map((r, i) => '<tr><td>' + (i + 1) + '</td>' + cols.map(h => { const v = r[h]; const blank = v === '' || v == null; return '<td class="' + (blank ? 'miss' : '') + '">' + (blank ? '(empty)' : esc(v)) + '</td>'; }).join('') + '</tr>').join('') + '</tbody>';
+  $$('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.arg === S.ui.impMode)); $('#impConfirm').disabled = !!a.errors.length || !valid;
+  $('#impConfirm').innerHTML = '<i data-lucide="check"></i> Confirm &amp; import ' + num(valid) + ' rows'; ic();
+}
+function renderStored() {
+  const all = recs(), per = 12, pages = Math.max(1, Math.ceil(all.length / per)); S.ui.tblPage = clamp(S.ui.tblPage, 0, pages - 1);
+  $('#storedInfo').textContent = isDemo() ? 'Showing generated DEMO data (' + num(all.length) + ' sample records) — not stored. Import a file to replace it.' : num(all.length) + ' imported records stored in this browser · ' + fmtD(dataRange().min) + ' to ' + fmtD(dataRange().max);
+  const sl = all.slice(S.ui.tblPage * per, S.ui.tblPage * per + per);
+  $('#storedTbl').innerHTML = '<thead><tr>' + FIELDS.map(f => '<th class="' + (f.type === 'num' ? 'r' : '') + '">' + f.label + '</th>').join('') + '</tr></thead><tbody>' + sl.map(r => '<tr>' + FIELDS.map(f => '<td class="' + (f.type === 'num' ? 'r' : '') + (r[f.key] == null ? ' miss' : '') + '">' + (r[f.key] == null ? '—' : f.type === 'num' ? num(r[f.key], 2) : esc(r[f.key])) + '</td>').join('') + '</tr>').join('') + '</tbody>';
+  $('#pgInfo').textContent = 'Page ' + (S.ui.tblPage + 1) + ' of ' + pages;
+}
+function templateCSV() {
+  const rows = [['2026-11-01', 'Aryabhatta Hostel', 'Rice', 8.4, 7.6, 0.3, 1.4, 0.4, 29.8, 63, 65], ['2026-11-01', 'Aryabhatta Hostel', 'Dal', 3.1, 2.9, 0.1, 0.5, 0.15, 29.8, 63, 65], ['2026-11-01', 'Gargi Hostel', 'Roti', 4.2, 3.8, 0.15, 0.7, 0.2, 30.1, 61, 66]];
+  return Papa.unparse({fields: FIELDS.map(f => f.label), data: rows});
+}
+
+/* --- Predictions --- */
+function renderPredictions() {
+  $$('#horSeg button').forEach(b => b.classList.toggle('on', +b.dataset.arg === S.ui.horizon)); $$('#pmSeg button').forEach(b => b.classList.toggle('on', b.dataset.arg === S.ui.pm));
+  const f = forecast(S.ui.horizon), rs = filtered(); const h = S.ui.horizon;
+  if (!f.ok) { $('#fcKpis').innerHTML = '<div class="callout warn" style="grid-column:1/-1"><i data-lucide="info"></i><span>' + esc(f.reason) + '</span></div>'; mkChart('fcChart', {}, true); }
+  else {
+    const rows = [['collected', 'Predicted food waste', 'kg', 'trash-2', f.tot.collected, f.act.collected, '#B45309', 'rgba(242,158,132,.22)'], ['fertilizer', 'Predicted fertilizer', 'kg', 'sprout', f.tot.fertilizer, f.act.fertilizer, '#5E8A12', 'rgba(155,209,60,.25)'], ['protein', 'Predicted protein meal', 'kg', 'beef', f.tot.protein, f.act.protein, '#C2563A', 'rgba(242,158,132,.25)']];
+    $('#fcKpis').innerHTML = rows.map(r => { const ch = pctChange(r[4], r[5]); return '<div class="kpi" style="--c:' + r[6] + ';--tint:' + r[7] + '"><div class="kpi-top"><span class="kpi-ico"><i data-lucide="' + r[3] + '"></i></span><span class="est-pill">ESTIMATE</span></div><div class="kpi-val">' + num(r[4]) + '<small>' + r[2] + '</small></div><div class="kpi-label">' + r[1] + ' · next ' + h + ' days</div><div class="kpi-cmp">' + (ch === null ? '' : (ch >= 0 ? '▲ ' : '▼ ') + num(Math.abs(ch), 1) + '% vs the last ' + h + ' days (' + num(r[5]) + ' kg actual)') + (r[0] === 'collected' ? ' · range ' + num(f.tot.lo) + '–' + num(f.tot.hi) : '') + '</div></div>'; }).join('');
+    const k = S.ui.pm, nh = h <= 7 ? 28 : h <= 30 ? 45 : 60, hist = f.daily.slice(-nh);
+    const pick = k === 'collected' ? (d => d.collected) : k === 'fertilizer' ? (d => d.fertilizer) : (d => d.protein);
+    const scale = k === 'collected' ? 1 : (k === 'fertilizer' ? f.ratios.rP * f.ratios.rF : f.ratios.rP * f.ratios.rR);
+    const labels = hist.map(d => fmtDS(d.key)).concat(f.days.map(d => fmtDS(d.date))), n = hist.length, pad_ = Array(n).fill(null);
+    const hv = hist.map(d => round(pick(d))), fv = f.days.map(d => round(d.y * scale)), lo = f.days.map(d => round(d.lo * scale)), hi = f.days.map(d => round(d.hi * scale)), unit = 'kg';
+    const lab = k === 'collected' ? 'Food waste' : k === 'fertilizer' ? 'Fertilizer' : 'Protein meal';
+    const o = baseOpts('Date', lab + ' per day (kg)'); o.plugins.legend.labels.filter = i => i.datasetIndex !== 2;
+    mkChart('fcChart', {type: 'line', data: {labels, datasets: [lineDS('Historical (actual)', hv.concat(Array(h).fill(null)), C.emerald, {fill: false}), lineDS('Forecast (estimate)', pad_.slice(0, n - 1).concat([hv[n - 1]], fv), C.peach, {borderDash: [7, 5]}), {label: 'lower', data: pad_.concat(lo), borderWidth: 0, pointRadius: 0, fill: false}, {label: 'Likely range (80%)', data: pad_.concat(hi), borderWidth: 0, pointRadius: 0, backgroundColor: 'rgba(242,158,132,.2)', fill: '-1'}]}, options: o}, false);
+    $('#fcSub').textContent = lab + ' — last ' + n + ' days of actuals and the next ' + h + ' days (estimate, ' + unit + '/day)';
+  }
+  const rsD = seriesBy(rs, 'day').slice().sort((a, b) => b.collected - a.collected).slice(0, 5);
+  $('#fcHigh').innerHTML = rsD.length ? rsD.map((d, i) => '<li><span class="dot warn">' + (i + 1) + '</span><span><b>' + fmtD(d.key) + '</b> (' + DOWS[dowOf(d.key)].slice(0, 3) + ') — ' + num(d.collected, 1) + ' kg collected</span></li>').join('') : '<li>No data in range.</li>';
+  const an = anomalies(recs().filter(hostelOK)).slice(0, 6);
+  $('#fcAnom').innerHTML = an.length ? an.map(a => '<li><span class="dot ' + (a.z > 0 ? 'bad' : 'warn') + '"><i data-lucide="' + (a.z > 0 ? 'arrow-up' : 'arrow-down') + '"></i></span><span><b>' + fmtD(a.date) + '</b>: ' + num(a.y, 1) + ' kg vs ~' + num(a.exp, 1) + ' kg expected (' + (a.z > 0 ? '+' : '') + num(a.z, 1) + ' σ). ' + (a.z > 0 ? 'Check for events or over-production.' : 'Check for missed collection or data entry gaps.') + '</span></li>').join('') : '<li><span class="dot"><i data-lucide="check"></i></span><span>No unusual daily totals detected in the last 60 days.</span></li>';
+  $('#fcStrat').innerHTML = strategies(rs).map(s => '<li><span class="dot"><i data-lucide="check"></i></span><span>' + md(s, true) + '</span></li>').join('');
+  $('#fcMethod').innerHTML = '<p><b>Method (fully transparent):</b></p><p>1) Daily collected totals from the last up to 60 days are used.<br>2) A <b>weekday factor</b> is computed for each day of the week (average ÷ overall average).<br>3) The weekday effect is removed and a <b>linear trend</b> is fitted by least squares.<br>4) Forecast = trend × weekday factor. The shaded band is ±1.28 × residual σ (about 80%), widening over time.<br>5) Fertilizer and protein meal = forecast processed waste × your <b>last-30-day yield ratios</b>.</p>' + (f.ok ? '<p class="mt"><b>Current fit:</b> trend ' + (f.slopeWeek >= 0 ? '+' : '') + num(f.slopeWeek, 2) + ' kg/day per week · ' + (f.mape !== null ? 'back-test error on the last 7 days ≈ ' + num(f.mape, 1) + '% (MAPE)' : 'not enough history for a back-test') + '.</p>' : '') + '<p class="mt">These are statistical estimates, not confirmed results; holidays, menu changes or occupancy shifts are not modelled. No external AI model is connected.</p>';
+}
+
+/* --- BSF --- */
+function renderBSF() {
+  const rs = filtered(), k = kpis(rs);
+  const nodes = [['trash-2', 'Food Waste', num(k.collected) + ' kg', 'collected', '#B45309', '#FFE9D6'], ['filter', 'Segregation', num(k.processed) + ' kg', 'accepted for processing', '#276A73', '#DCEFF2'], ['bug', 'BSF Larvae', num(k.larvae, 1) + ' kg', 'larvae consumed waste', '#0E8556', '#DDF5E8'], ['sprout', 'Fertilizer + Protein', num(k.fertilizer) + ' + ' + num(k.protein) + ' kg', 'organic fertilizer · protein meal', '#5E8A12', '#EAF6CF'], ['recycle', 'Resource Recovery', num(k.recovery, 1) + '%', 'of processed mass recovered', '#4B3C8C', '#E7E2F7']];
+  $('#flow').innerHTML = nodes.map((n, i) => '<div class="fnode" style="--c:' + n[4] + ';--bg-c:' + n[5] + ';--d:' + i * .35 + 's"><div class="ic"><i data-lucide="' + n[0] + '"></i></div><h4>' + n[1] + '</h4><div class="v">' + n[2] + '</div><div class="s">' + n[3] + '</div></div>' + (i < nodes.length - 1 ? '<div class="fconn" style="--d:' + i * .45 + 's"></div>' : '')).join('');
+  $('#bsfPct').textContent = num(k.diversion, 1) + '%'; $('#bsfBar').style.width = k.diversion + '%'; $('#bsfIn').textContent = num(k.collected) + ' kg'; $('#bsfLar').textContent = num(k.larvae, 1) + ' kg';
+  $('#bsfFert').textContent = num(k.fertilizer) + ' kg'; $('#bsfProt').textContent = num(k.protein) + ' kg'; $('#bsfEff').textContent = num(k.diversion, 1) + '%'; $('#bsfRec').textContent = num(k.recovery, 1) + '%'; $('#bsfFeed').textContent = k.larvae ? num(k.processed / k.larvae, 1) + ' kg/kg' : '—';
+  const s = seriesBy(rs, 'week'); const o = baseOpts('Week starting', 'Percent (%)'); o.scales.y.max = 100;
+  mkChart('bsfChart', {type: 'line', data: {labels: s.map(b => bucketLabel(b.key, 'week')), datasets: [lineDS('Processing rate (%)', s.map(b => round(b.diversion, 1)), C.emerald), lineDS('Resource recovery (%)', s.map(b => round(b.recovery, 1)), C.peach)]}, options: o}, !rs.length);
+}
+
+/* --- Impact --- */
+function renderImpact() {
+  const rs = filtered(), k = kpis(rs), A = S.settings.assump, trees = A.tree ? k.co2 / A.tree : 0, val = k.fertilizer * A.fertPrice + k.protein * A.proteinPrice + k.processed * A.disposal;
+  const st = [['trash-2', 'Waste diverted from landfill', num(k.processed) + ' kg', num(k.diversion, 1) + '% of collected', '#0E8556', '#DDF5E8'], ['cloud-off', 'Estimated CO₂ avoided', num(k.co2) + ' kg', '≈ ' + num(trees, 1) + ' tree-years of absorption', '#276A73', '#DCEFF2'], ['sprout', 'Fertilizer generated', num(k.fertilizer) + ' kg', 'organic soil nutrient', '#5E8A12', '#EAF6CF'], ['beef', 'Protein recovered', num(k.protein) + ' kg', 'protein-rich feed meal', '#C2563A', '#FFE9D6']];
+  $('#impStats').innerHTML = st.map(x => '<div class="card hover"><div class="big-stat" style="--c:' + x[4] + ';--bg-c:' + x[5] + '"><div class="ic"><i data-lucide="' + x[0] + '"></i></div><div><b>' + x[2] + '</b><span>' + x[1] + '</span><br><span class="note">' + x[3] + '</span></div></div></div>').join('') ;
+  const ring = (id, v) => { const c = 389.6; $('#' + id).style.strokeDashoffset = c * (1 - clamp(v, 0, 100) / 100); }; ring('ringA', k.diversion); ring('ringB', k.recovery); $('#ringAv').textContent = num(k.diversion, 0) + '%'; $('#ringBv').textContent = num(k.recovery, 0) + '%';
+  const lost = Math.max(0, k.processed - k.fertilizer - k.protein);
+  mkChart('imMix', {type: 'doughnut', data: {labels: ['Fertilizer', 'Protein meal', 'Mass loss (moisture/CO₂/heat)'], datasets: [{data: [round(k.fertilizer), round(k.protein), round(lost)], backgroundColor: [C.lime, C.peach, '#D9D4C5'], borderWidth: 3, borderColor: '#fff'}]}, options: {responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: {legend: {position: 'bottom', labels: {usePointStyle: true, boxWidth: 8}}, tooltip: {callbacks: {label: c => ' ' + c.label + ': ' + num(c.parsed, 1) + ' kg'}}}}}, !rs.length || !k.processed);
+  const d = seriesBy(rs, 'day'); let cum = 0; const cs = d.map(b => round(cum += b.co2));
+  mkChart('imCum', {type: 'line', data: {labels: d.map(b => fmtDS(b.key)), datasets: [lineDS('Cumulative CO₂ avoided (kg CO₂e)', cs, C.emerald, {fill: true, backgroundColor: 'rgba(22,163,106,.15)'})]}, options: baseOpts('Date', 'kg CO₂e (cumulative)')}, !rs.length);
+  const ht = hostelTotals(rs); const oh = baseOpts('Hostel', 'Diversion rate (%)'); oh.scales.y.max = 100; oh.plugins.legend.display = false;
+  mkChart('imHostel', {type: 'bar', data: {labels: ht.map(h => h.key), datasets: [{label: 'Landfill diversion (%)', data: ht.map(h => round(h.diversion, 1)), backgroundColor: ht.map((_, i) => PALETTE[i % PALETTE.length]), borderRadius: 8, maxBarThickness: 56}]}, options: oh}, !rs.length);
+  const AF = [['landfill', 'Landfill emission factor', 'kg CO₂e per kg waste'], ['process', 'BSF process emission', 'kg CO₂e per kg waste'], ['feedCredit', 'Feed substitution credit', 'kg CO₂e per kg protein meal'], ['tree', 'Tree absorption', 'kg CO₂ per tree-year'], ['fertPrice', 'Fertilizer price', '₹ per kg'], ['proteinPrice', 'Protein meal price', '₹ per kg'], ['disposal', 'Avoided disposal cost', '₹ per kg waste']];
+  $('#assumpGrid').innerHTML = AF.map(a => '<div><label class="lbl">' + a[1] + '</label><input class="inp" type="number" step="0.01" min="0" id="as_' + a[0] + '" value="' + A[a[0]] + '"><span class="note">' + a[2] + '</span></div>').join('');
+  $('#assumpFormula').innerHTML = '<span><b>CO₂ avoided</b> = processed waste × (landfill factor ' + A.landfill + ' − process factor ' + A.process + ') + protein meal × feed credit ' + A.feedCredit + ' = <b>' + num(k.co2) + ' kg CO₂e</b>. Value recovered (placeholder prices) ≈ <b>₹' + num(val) + '</b>. Diversion % = processed ÷ collected (capped at 100%).</span>';
+}
+
+/* --- Reports --- */
+const RTYPES = [['daily', 'Daily report', 'Day-by-day totals', 'calendar-days'], ['weekly', 'Weekly report', 'Week-by-week totals', 'calendar-range'], ['monthly', 'Monthly report', 'Month-by-month totals', 'calendar'], ['hostel', 'Hostel-wise', 'Compare hostels', 'building-2'], ['food', 'Food-category', 'Rice, dal, roti…', 'utensils'], ['sustain', 'Sustainability', 'Impact & value', 'leaf']];
+function buildReport(type) {
+  const rs = filtered(), pr = prevFiltered(), k = kpis(rs), rg = resolveRange(), t = RTYPES.find(x => x[0] === type), A = S.settings.assump;
+  const cols = {}, ser = (g) => seriesBy(rs, g); let rows = [];
+  const per = (b, g) => g === 'day' ? fmtD(b.key) + ' (' + DOWS[dowOf(b.key)].slice(0, 3) + ')' : g === 'week' ? 'Week of ' + fmtD(b.key) : monthLabel(b.key);
+  const tableRow = (label, b, g) => ({[g === 'h' ? 'Hostel' : 'Period']: label, 'Collected (kg)': round(b.collected), 'Processed (kg)': round(b.processed), 'Remaining (kg)': round(b.remaining), 'Processing rate (%)': round(b.diversion, 1), 'Fertilizer (kg)': round(b.fertilizer), 'Protein meal (kg)': round(b.protein), 'CO2 avoided (kg CO2e)': round(b.co2)});
+  if (['daily', 'weekly', 'monthly'].includes(type)) { const g = type === 'daily' ? 'day' : type === 'weekly' ? 'week' : 'month'; rows = ser(g).map(b => tableRow(per(b, g), b, g)); }
+  else if (type === 'hostel') { const days = k.days || 1; rows = hostelTotals(rs).map(b => ({'Hostel': b.key, 'Collected (kg)': round(b.collected), 'Share of total (%)': round(k.collected ? b.collected / k.collected * 100 : 0, 1), 'Avg per day (kg)': round(b.collected / days, 1), 'Processed (kg)': round(b.processed), 'Processing rate (%)': round(b.diversion, 1), 'Fertilizer (kg)': round(b.fertilizer), 'Protein meal (kg)': round(b.protein), 'CO2 avoided (kg CO2e)': round(b.co2)})); }
+  else if (type === 'food') rows = foodTotals(rs).map(b => ({'Food category': b.key, 'Collected (kg)': round(b.collected), 'Share of total (%)': round(k.collected ? b.collected / k.collected * 100 : 0, 1), 'Processed (kg)': round(b.processed), 'Fertilizer (kg)': round(b.fertilizer), 'Protein meal (kg)': round(b.protein)}));
+  else { const g = daysBetween(rg.from, rg.to) > 90 ? 'month' : 'week'; rows = ser(g).map(b => ({'Period': per(b, g), 'Processed (kg)': round(b.processed), 'Diversion (%)': round(b.diversion, 1), 'CO2 avoided (kg CO2e)': round(b.co2), 'Fertilizer (kg)': round(b.fertilizer), 'Protein meal (kg)': round(b.protein), 'Resource recovery (%)': round(b.recovery, 1), 'Value recovered (INR)': round(b.fertilizer * A.fertPrice + b.protein * A.proteinPrice + b.processed * A.disposal)})); }
+  return {type, title: t[1], period: periodLabel(rg), hostel: S.settings.hostel === 'all' ? 'All hostels' : S.settings.hostel, rs, k, pk: kpis(pr), rows, obs: observations(rs, pr), demo: isDemo(), cols: rows.length ? Object.keys(rows[0]) : []};
+}
+function observations(rs, pr) {
+  if (!rs.length) return ['No records in the selected period.'];
+  const k = kpis(rs), p = kpis(pr), o = [], ch = pctChange(k.collected, p.collected), A = S.settings.assump;
+  o.push('Collected ' + num(k.collected) + ' kg and processed ' + num(k.processed) + ' kg over ' + k.days + ' days with data (' + num(k.diversion, 1) + '% processing rate).');
+  if (ch !== null) o.push('Waste collected is ' + (ch >= 0 ? 'up ' : 'down ') + num(Math.abs(ch), 1) + '% compared with the previous period (' + num(p.collected) + ' kg).');
+  const ht = hostelTotals(rs); if (ht.length > 1) o.push('Highest generator: ' + ht[0].key + ' (' + num(ht[0].collected) + ' kg, ' + num(ht[0].collected / k.collected * 100, 0) + '%); lowest: ' + ht[ht.length - 1].key + ' (' + num(ht[ht.length - 1].collected) + ' kg).');
+  const ft = foodTotals(rs).sort((a, b) => b.collected - a.collected); if (ft[0].collected) o.push('Largest food category: ' + ft[0].key + ' (' + num(ft[0].collected / k.collected * 100, 0) + '% of waste).');
+  const pk = seriesBy(rs, 'day').sort((a, b) => b.collected - a.collected)[0]; if (pk) o.push('Peak day: ' + fmtD(pk.key) + ' with ' + num(pk.collected, 1) + ' kg.');
+  o.push('Outputs: ' + num(k.fertilizer) + ' kg organic fertilizer and ' + num(k.protein) + ' kg protein meal (' + num(k.recovery, 1) + '% of processed mass recovered).');
+  o.push('Estimated ' + num(k.co2) + ' kg CO2e avoided (assumptions: landfill ' + A.landfill + ', process ' + A.process + ' kg CO2e/kg waste; see Sustainability page).'); return o;
+}
+function reportCharts(rep) {
+  const rs = rep.rs, g = rep.type === 'weekly' || rep.type === 'sustain' ? 'week' : rep.type === 'monthly' ? 'month' : 'day';
+  if (rep.type === 'hostel') return [cfgHostel(rs), cfgImpactHostel(rs)];
+  if (rep.type === 'food') return [cfgDonut(rs), cfgFoodBar(rs)];
+  if (rep.type === 'sustain') return [cfgImpact(g, rs), cfgResource(g, rs)];
+  return [cfgTrend(g, rs), cfgResource(g, rs)];
+}
+function cfgImpactHostel(rs) { const h = hostelTotals(rs), o = baseOpts('Hostel', 'Fertilizer + protein (kg)'); o.scales.x.stacked = o.scales.y.stacked = true; return {type: 'bar', data: {labels: h.map(x => x.key), datasets: [{label: 'Fertilizer (kg)', data: h.map(x => round(x.fertilizer)), backgroundColor: C.lime, borderRadius: 4}, {label: 'Protein meal (kg)', data: h.map(x => round(x.protein)), backgroundColor: C.peach, borderRadius: 4}]}, options: o}; }
+function cfgFoodBar(rs) { const f = foodTotals(rs), o = baseOpts('Food category', 'Waste (kg)'); return {type: 'bar', data: {labels: f.map(x => x.key), datasets: [{label: 'Collected (kg)', data: f.map(x => round(x.collected)), backgroundColor: C.forest, borderRadius: 6}, {label: 'Processed (kg)', data: f.map(x => round(x.processed)), backgroundColor: C.emerald, borderRadius: 6}]}, options: o}; }
+function renderReports() {
+  $('#rTypes').innerHTML = RTYPES.map(t => '<button class="rtype ' + (S.ui.repType === t[0] ? 'on' : '') + '" data-act="rep-type" data-arg="' + t[0] + '"><span class="ic"><i data-lucide="' + t[3] + '"></i></span><b>' + t[1] + '</b><span>' + t[2] + '</span></button>').join('');
+  const r = buildReport(S.ui.repType); $('#rTitle').textContent = r.title + (r.demo ? ' (demo data)' : ''); $('#rPeriod').textContent = 'Reporting period: ' + r.period + ' · ' + r.hostel;
+  const k = r.k, mk = [['Collected', num(k.collected) + ' kg'], ['Processed', num(k.processed) + ' kg'], ['Diversion', num(k.diversion, 1) + '%'], ['Fertilizer', num(k.fertilizer) + ' kg'], ['Protein meal', num(k.protein) + ' kg'], ['CO₂ avoided', num(k.co2) + ' kg']];
+  $('#rKpis').innerHTML = mk.map(m => '<div class="mini-kpi"><small>' + m[0] + '</small><b>' + m[1] + '</b></div>').join('');
+  const ch = reportCharts(r), e = !r.rs.length; mkChart('rp1', ch[0], e); mkChart('rp2', ch[1], e);
+  $('#rTbl').innerHTML = r.rows.length ? '<thead><tr>' + r.cols.map((c, i) => '<th class="' + (i ? 'r' : '') + '">' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' + r.rows.slice(0, 40).map(x => '<tr>' + r.cols.map((c, i) => '<td class="' + (i ? 'r' : '') + '">' + (i ? num(x[c], 1) : esc(x[c])) + '</td>').join('') + '</tr>').join('') + '</tbody>' : '<tbody><tr><td>No data in range</td></tr></tbody>';
+  $('#rObs').innerHTML = r.obs.map(o => '<li><span class="dot"><i data-lucide="check"></i></span><span>' + esc(o) + '</span></li>').join('');
+}
+
+/* --- Assistant page --- */
+const SUGGESTED = ['How much waste did we process this month?', 'Which hostel generates the most waste?', "Predict next month's food waste.", 'How much fertilizer have we produced?', 'What is our environmental impact?', 'How can we improve our BSF processing efficiency?'];
+function renderAssistant() {
+  $('#asSuggest').innerHTML = SUGGESTED.map(q => '<button class="btn btn-ghost btn-sm" data-act="chat-ask" data-q="' + esc(q) + '">' + esc(q) + '</button>').join('');
+  $('#aiUrl').value = S.settings.ai.url || ''; $$('#aiModeSeg button').forEach(b => b.classList.toggle('on', b.dataset.arg === S.settings.ai.mode));
+  const on = S.settings.ai.url && S.settings.ai.mode !== 'local'; $('#aiState').className = 'pill ' + (on ? 'lime' : 'gray'); $('#aiState').textContent = on ? 'Enabled · ' + S.settings.ai.mode : 'Not configured';
+}
+
+/* ---------- 8. IoT SIMULATOR / LIVE POLLING ---------- */
+const SENS = {temp: {label: 'Temperature', unit: '°C', icon: 'thermometer', dec: 1, min: 10, max: 50, color: C.peach}, humidity: {label: 'Humidity', unit: '%', icon: 'droplets', dec: 0, min: 0, max: 100, color: C.teal}, moisture: {label: 'Moisture', unit: '%', icon: 'droplet', dec: 0, min: 0, max: 100, color: C.emerald}};
+const statusFor = (k, v) => { const t = S.settings.thresholds[k]; return (v < t.cl || v > t.ch) ? 'crit' : (v < t.wl || v > t.wh) ? 'warn' : 'ok'; };
+const STATUS_TXT = {ok: 'Normal', warn: 'Warning', crit: 'Critical'};
+function pushReading(v) {
+  const s = S.sensor, now = new Date(), lab = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  s.hist.labels.push(lab); Object.keys(SENS).forEach(k => { s.hist[k].push(round(v[k], 1)); }); Object.keys(s.hist).forEach(k => { if (s.hist[k].length > 60) s.hist[k].shift(); });
+  Object.keys(SENS).forEach(k => {
+    const st = statusFor(k, v[k]), old = s.status[k]; if (st !== old && st !== 'ok') { const msg = SENS[k].label + ' ' + STATUS_TXT[st].toLowerCase() + ': ' + num(v[k], SENS[k].dec) + SENS[k].unit + (v[k] > S.settings.thresholds[k].wh ? ' (above range)' : ' (below range)'); s.alerts.unshift({ts: lab, level: st, msg}); s.alerts.length = Math.min(s.alerts.length, 40); if (st === 'crit') toast('⚠ ' + msg, 'err'); }
+    if (old && old !== 'ok' && st === 'ok') { s.alerts.unshift({ts: lab, level: 'info', msg: SENS[k].label + ' back to normal (' + num(v[k], SENS[k].dec) + SENS[k].unit + ')'}); }
+    s.status[k] = st;
+  });
+  s.last = lab; if (S.page === 'iot') updateIoT();
+}
+function simTick() {
+  const v = S.sensor.vals, f = S.sensor.fault > 0, r = () => Math.random() - .5;
+  v.temp += (30 - v.temp) * .08 + r() * .6 + (f ? 1.3 : 0); v.humidity += (63 - v.humidity) * .08 + r() * 1.6 - (f ? 1.8 : 0); v.moisture += (65 - v.moisture) * .08 + r() * 1.4 - (f ? 2.2 : 0);
+  if (f) S.sensor.fault--; v.temp = clamp(v.temp, 12, 48); v.humidity = clamp(v.humidity, 15, 99); v.moisture = clamp(v.moisture, 15, 99); pushReading(v);
+}
+async function livePoll() {
+  const url = S.settings.iot.url; if (!url) return;
+  try { const ac = new AbortController(), to = setTimeout(() => ac.abort(), 4000); const res = await fetch(url, {cache: 'no-store', signal: ac.signal}); clearTimeout(to); const j = await res.json();
+    const t = j.temperature ?? j.temp, h = j.humidity ?? j.hum, m = j.moisture ?? j.moist; if ([t, h, m].some(x => typeof x !== 'number')) throw new Error('bad payload');
+    S.sensor.vals = {temp: t, humidity: h, moisture: m}; S.sensor.fails = 0; if (S.sensor.conn !== 'live') { S.sensor.conn = 'live'; updateSideSensor(); } pushReading(S.sensor.vals);
+  } catch (e) { S.sensor.fails++; if (S.sensor.fails >= 3 && S.sensor.conn !== 'offline') { S.sensor.conn = 'offline'; S.sensor.alerts.unshift({ts: new Date().toLocaleTimeString(), level: 'crit', msg: 'Sensor endpoint unreachable — connection lost'}); toast('Sensor endpoint unreachable', 'err'); updateSideSensor(); if (S.page === 'iot') updateIoT(); } }
+}
+function startSensors() { for (let i = 0; i < 25; i++) simTick(); setInterval(() => { S.settings.iot.mode === 'live' && S.settings.iot.url ? livePoll() : simTick(); }, 3000); }
+function zoneBar(k) { const t = S.settings.thresholds[k], s = SENS[k], p = v => clamp((v - s.min) / (s.max - s.min) * 100, 0, 100); return 'linear-gradient(90deg,#E9A3A3 0 ' + p(t.cl) + '%,#F5D58A ' + p(t.cl) + '% ' + p(t.wl) + '%,#9EDDBA ' + p(t.wl) + '% ' + p(t.wh) + '%,#F5D58A ' + p(t.wh) + '% ' + p(t.ch) + '%,#E9A3A3 ' + p(t.ch) + '% 100%)'; }
+function renderIoT() {
+  const s = S.sensor; const sim = S.settings.iot.mode !== 'live' || s.conn === 'sim';
+  $('#sensorCards').innerHTML = Object.keys(SENS).map(k => { const d = SENS[k], t = S.settings.thresholds[k]; return '<div class="card sensor" id="sc_' + k + '"><div class="top"><div class="name"><span class="ic"><i data-lucide="' + d.icon + '"></i></span>' + d.label + '</div><span class="pill" id="sp_' + k + '">—</span></div><div class="val" id="sv_' + k + '">—<small> ' + d.unit + '</small></div><div class="range" style="background:' + zoneBar(k) + '"><i id="sm_' + k + '" style="left:50%"></i></div><div class="range-lab"><span>' + d.min + d.unit + '</span><span>Normal ' + t.wl + '–' + t.wh + d.unit + '</span><span>' + d.max + d.unit + '</span></div><div class="chart-box" style="height:90px;margin-top:10px"><canvas id="sl_' + k + '"></canvas></div></div>'; }).join('');
+  Object.keys(SENS).forEach(k => { const d = SENS[k]; mkChart('sl_' + k, {type: 'line', data: {labels: s.hist.labels.slice(), datasets: [{data: s.hist[k].slice(), borderColor: d.color, backgroundColor: d.color + '22', fill: true, tension: .4, pointRadius: 0, borderWidth: 2}]}, options: {responsive: true, maintainAspectRatio: false, animation: false, plugins: {legend: {display: false}, tooltip: {callbacks: {label: c => ' ' + c.parsed.y + d.unit}}}, scales: {x: {display: false}, y: {display: false}}}}); });
+  const o = baseOpts('Time', 'Reading'); o.animation = false; mkChart('ioLive', {type: 'line', data: {labels: s.hist.labels.slice(), datasets: Object.keys(SENS).map(k => lineDS(SENS[k].label + ' (' + SENS[k].unit + ')', s.hist[k].slice(), SENS[k].color, {pointRadius: 0}))}, options: o});
+  const hs = seriesBy(filtered(), 'day').filter(b => b.tn || b.hn || b.mn), oh = baseOpts('Date', 'Temperature (°C)', {y1: {position: 'right', min: 0, max: 100, title: {display: true, text: 'Humidity / Moisture (%)'}, grid: {display: false}}});
+  mkChart('ioHist', {type: 'line', data: {labels: hs.map(b => fmtDS(b.key)), datasets: [lineDS('Temperature (°C)', hs.map(b => b.tn ? round(b.temp / b.tn, 1) : null), C.peach, {yAxisID: 'y'}), lineDS('Humidity (%)', hs.map(b => b.hn ? round(b.hum / b.hn, 0) : null), C.teal, {yAxisID: 'y1'}), lineDS('Moisture (%)', hs.map(b => b.mn ? round(b.moi / b.mn, 0) : null), C.emerald, {yAxisID: 'y1'})]}, options: oh}, !hs.length);
+  $('#thrGrid').innerHTML = '<span></span><span class="h">Crit low</span><span class="h">Warn low</span><span class="h">Warn high</span><span class="h">Crit high</span>' + Object.keys(SENS).map(k => { const t = S.settings.thresholds[k]; return '<b>' + SENS[k].label + '</b>' + ['cl', 'wl', 'wh', 'ch'].map(f => '<input class="inp" type="number" step="0.5" id="th_' + k + '_' + f + '" value="' + t[f] + '">').join(''); }).join('');
+  $('#iotUrl').value = S.settings.iot.url || ''; updateIoT();
+}
+function updateIoT() {
+  const s = S.sensor, live = s.conn === 'live', off = s.conn === 'offline';
+  $('#iotConn').className = 'pill ' + (live ? 'green' : off ? 'red' : 'amber'); $('#iotConn').innerHTML = '<span class="live-dot ' + (live ? '' : off ? 'off' : 'sim') + '"></span> ' + (live ? 'Connected · ESP32' : off ? 'Disconnected' : 'Simulated data');
+  $('#iotNote').style.display = live ? 'none' : 'flex'; $('#iotStreamSub').textContent = (live ? 'Live readings' : 'Simulated readings') + ' · last 60 samples · updates every 3 s';
+  Object.keys(SENS).forEach(k => {
+    const v = s.vals[k], st = s.status[k] || 'ok', d = SENS[k], card = $('#sc_' + k); if (!card) return;
+    card.className = 'card sensor ' + (st === 'ok' ? '' : st); $('#sv_' + k).innerHTML = num(v, d.dec) + '<small> ' + d.unit + '</small>';
+    const pill = $('#sp_' + k); pill.className = 'pill ' + (st === 'ok' ? 'green' : st === 'warn' ? 'amber' : 'red'); pill.textContent = STATUS_TXT[st];
+    $('#sm_' + k).style.left = 'calc(' + clamp((v - d.min) / (d.max - d.min) * 100, 0, 100) + '% - 2px)';
+    const sl = S.charts['sl_' + k]; if (sl) { sl.data.labels = s.hist.labels.slice(); sl.data.datasets[0].data = s.hist[k].slice(); sl.update('none'); }
+  });
+  const lc = S.charts.ioLive; if (lc) { lc.data.labels = s.hist.labels.slice(); Object.keys(SENS).forEach((k, i) => lc.data.datasets[i].data = s.hist[k].slice()); lc.update('none'); }
+  $('#alertList').innerHTML = s.alerts.length ? s.alerts.map(a => '<div class="alert-item ' + a.level + '"><i data-lucide="' + (a.level === 'info' ? 'check-circle-2' : 'alert-triangle') + '"></i><span>' + esc(a.msg) + '</span><time>' + a.ts + '</time></div>').join('') : '<div class="alert-item info"><i data-lucide="check-circle-2"></i><span>No alerts — all readings are within the configured thresholds.</span></div>';
+  ic();
+}
+
+/* ---------- 9. EXPORTS & REPORTS ---------- */
+const recRow = r => { const o = {}; FIELDS.forEach(f => o[f.label] = r[f.key] == null ? '' : r[f.key]); return o; };
+function exportRecords(list, kind, name) {
+  if (!list.length) return toast('There are no records to export.', 'warn');
+  const rows = list.map(recRow);
+  if (kind === 'csv') { download(new Blob(['\ufeff' + Papa.unparse(rows)], {type: 'text/csv;charset=utf-8'}), name + '.csv'); }
+  else { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'BioLoop Records'); XLSX.writeFile(wb, name + '.xlsx'); }
+  toast('Exported ' + num(list.length) + ' records' + (isDemo() ? ' (demo data)' : '') + '.');
+}
+const stamp = () => todayISO().replace(/-/g, '');
+function exportReport(kind) {
+  const r = buildReport(S.ui.repType); if (!r.rows.length) return toast('This report has no data for the selected period.', 'warn');
+  const name = 'BioLoop_' + r.type + '_report_' + stamp();
+  if (kind === 'csv') { download(new Blob(['\ufeff' + Papa.unparse(r.rows)], {type: 'text/csv;charset=utf-8'}), name + '.csv'); }
+  else {
+    const wb = XLSX.utils.book_new(), k = r.k, A = S.settings.assump;
+    const summary = [['BioLoop AI — ' + r.title], ['Turning Food Waste Into Valuable Resources'], ['Organisation', S.settings.org], ['Reporting period', r.period], ['Scope', r.hostel], ['Data source', r.demo ? 'DEMO / sample data' : 'Imported data'], [], ['KPI', 'Value'], ['Waste collected (kg)', round(k.collected)], ['Waste processed (kg)', round(k.processed)], ['Landfill diversion (%)', round(k.diversion, 1)], ['Fertilizer produced (kg)', round(k.fertilizer)], ['Protein meal produced (kg)', round(k.protein)], ['CO2 avoided (kg CO2e)', round(k.co2)], [], ['Key observations'], ...r.obs.map(o => [o]), [], ['Assumptions'], ['Landfill factor (kg CO2e/kg)', A.landfill], ['Process factor (kg CO2e/kg)', A.process], ['Feed credit (kg CO2e/kg protein)', A.feedCredit]];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary'); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(r.rows), 'Report data'); XLSX.writeFile(wb, name + '.xlsx');
+  }
+  toast(r.title + ' downloaded.');
+}
+const pdfSafe = s => String(s).replace(/₹/g, 'Rs ').replace(/₂/g, '2').replace(/→/g, '->').replace(/≈/g, '~').replace(/[·•]/g, '-').replace(/[–—]/g, '-').replace(/σ/g, 'sigma');
+function exportPDF() {
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library failed to load (check your internet connection).', 'err');
+  const r = buildReport(S.ui.repType); if (!r.rs.length) return toast('This report has no data for the selected period.', 'warn');
+  const doc = new window.jspdf.jsPDF({unit: 'pt', format: 'a4'}), W = 595, H = 842, M = 40, k = r.k, A = S.settings.assump; let y;
+  const header = () => { doc.setFillColor(18, 59, 42); doc.rect(0, 0, W, 78, 'F'); doc.setFillColor(22, 163, 106); doc.circle(M + 14, 39, 15, 'F'); doc.setFillColor(198, 242, 107); doc.circle(M + 14, 39, 6.5, 'F'); doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.text('BioLoop AI', M + 38, 37); doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(198, 242, 107); doc.text('Turning Food Waste Into Valuable Resources', M + 38, 53); doc.setTextColor(200, 225, 212); doc.text(pdfSafe(S.settings.org), W - M, 37, {align: 'right'}); doc.text('Generated ' + fmtD(todayISO()), W - M, 53, {align: 'right'}); };
+  const need = h => { if (y + h > H - 50) { doc.addPage(); header(); y = 100; } };
+  header(); y = 104; doc.setTextColor(18, 59, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text(pdfSafe(r.title), M, y); y += 18; doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(102, 117, 111); doc.text(pdfSafe('Reporting period: ' + r.period + '   |   Scope: ' + r.hostel), M, y); y += 14;
+  if (r.demo) { doc.setFillColor(255, 246, 220); doc.roundedRect(M, y, W - 2 * M, 22, 5, 5, 'F'); doc.setTextColor(110, 84, 16); doc.setFontSize(9); doc.text('Based on generated DEMO data - import your own CSV/Excel file for real figures.', M + 10, y + 14); y += 32; } else y += 8;
+  const cards = [['Waste collected', num(k.collected) + ' kg'], ['Waste processed', num(k.processed) + ' kg'], ['Landfill diversion', num(k.diversion, 1) + '%'], ['Fertilizer produced', num(k.fertilizer) + ' kg'], ['Protein meal', num(k.protein) + ' kg'], ['CO2 avoided (est.)', num(k.co2) + ' kg']], cw = (W - 2 * M - 20) / 3;
+  cards.forEach((c, i) => { const x = M + (i % 3) * (cw + 10), yy = y + Math.floor(i / 3) * 52; doc.setFillColor(242, 238, 227); doc.roundedRect(x, yy, cw, 44, 6, 6, 'F'); doc.setTextColor(102, 117, 111); doc.setFontSize(8.5); doc.text(pdfSafe(c[0]), x + 10, yy + 16); doc.setTextColor(18, 59, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.text(pdfSafe(c[1]), x + 10, yy + 35); doc.setFont('helvetica', 'normal'); }); y += 112;
+  try { const ch = reportCharts(r), cw2 = (W - 2 * M - 12) / 2, chh = cw2 * 0.5; need(chh + 20); doc.addImage(chartToImage(ch[0], 640, 320), 'PNG', M, y, cw2, chh); doc.addImage(chartToImage(ch[1], 640, 320), 'PNG', M + cw2 + 12, y, cw2, chh); y += chh + 18; } catch (e) { console.warn('chart render failed', e); }
+  need(40); doc.setTextColor(18, 59, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(12.5); doc.text('Key observations', M, y); y += 8; doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(31, 42, 39);
+  r.obs.forEach(o => { const ln = doc.splitTextToSize(pdfSafe('- ' + o), W - 2 * M - 8); need(ln.length * 12 + 6); y += 12; doc.text(ln, M + 4, y); y += (ln.length - 1) * 12 + 2; }); y += 14;
+  need(80); doc.setTextColor(18, 59, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(12.5); doc.text('Sustainability impact', M, y); y += 14; doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(31, 42, 39);
+  const si = pdfSafe('Approximately ' + num(k.processed) + ' kg of food waste was diverted from landfill (' + num(k.diversion, 1) + '% of collected). Estimated emissions avoided: ' + num(k.co2) + ' kg CO2e, calculated as processed waste x (' + A.landfill + ' - ' + A.process + ') kg CO2e/kg + protein meal x ' + A.feedCredit + '. These factors are configurable placeholders, not audited values. Equivalent to roughly ' + num(A.tree ? k.co2 / A.tree : 0, 1) + ' tree-years of CO2 absorption at ' + A.tree + ' kg CO2/tree-year.');
+  const sl = doc.splitTextToSize(si, W - 2 * M); doc.text(sl, M, y); y += sl.length * 12 + 12;
+  need(60); doc.autoTable({startY: y, head: [r.cols.map(pdfSafe)], body: r.rows.map(x => r.cols.map((c, i) => i ? num(x[c], 1) : pdfSafe(x[c]))), theme: 'striped', styles: {fontSize: 8, cellPadding: 4, textColor: [31, 42, 39]}, headStyles: {fillColor: [18, 59, 42], textColor: 255, fontSize: 8}, alternateRowStyles: {fillColor: [247, 244, 236]}, margin: {left: M, right: M, top: 100}, didDrawPage: d => { if (d.pageNumber > 1 && d.cursor) { } }});
+  const pages = doc.internal.getNumberOfPages(); for (let i = 1; i <= pages; i++) { doc.setPage(i); if (i > 1 && doc.getTextWidth('BioLoop AI') && !doc.__hdr) { } doc.setFontSize(8); doc.setTextColor(130, 140, 135); doc.text('BioLoop AI - Smart Food Waste Management & Sustainability Platform', M, H - 24); doc.text('Page ' + i + ' of ' + pages, W - M, H - 24, {align: 'right'}); }
+  doc.save('BioLoop_' + r.type + '_report_' + stamp() + '.pdf'); toast('PDF report downloaded.');
+}
+
+/* ---------- 10. BIOBOT — LOCAL DATA ENGINE + OPTIONAL EXTERNAL AI ---------- */
+function md(s, inline) {
+  let h = esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); if (inline) return h;
+  let out = '', list = false; h.split('\n').forEach(l => { if (/^\s*[-•]\s+/.test(l)) { if (!list) { out += '<ul>'; list = true; } out += '<li>' + l.replace(/^\s*[-•]\s+/, '') + '</li>'; } else { if (list) { out += '</ul>'; list = false; } if (l.trim()) out += '<p>' + l + '</p>'; } }); if (list) out += '</ul>'; return out;
+}
+function monthRange(y, m) { const from = y + '-' + pad(m) + '-01', to = addD(m === 12 ? (y + 1) + '-01-01' : y + '-' + pad(m + 1) + '-01', -1); return {from, to}; }
+function periodFromQuery(q) {
+  const {min, max} = dataRange(), my = +max.slice(0, 4), mm = +max.slice(5, 7); let m;
+  const mk = (from, to, label) => ({from: from < min ? min : from, to: to > max ? max : to, label, explicit: true});
+  if (/\b(all time|overall|so far|till date|to date|since the start|ever|altogether)\b/.test(q)) return mk(min, max, 'all time (' + fmtD(min) + ' – ' + fmtD(max) + ')');
+  if (/\byesterday\b/.test(q)) return mk(addD(max, -1), addD(max, -1), fmtD(addD(max, -1)));
+  if (/\btoday\b|latest day/.test(q)) return mk(max, max, 'the latest data day, ' + fmtD(max));
+  if ((m = q.match(/(?:last|past|previous)\s+(\d+)\s+days?/))) return mk(addD(max, -(+m[1] - 1)), max, 'the last ' + m[1] + ' days (to ' + fmtD(max) + ')');
+  if (/this week/.test(q)) return mk(weekStart(max), max, 'this week (from ' + fmtD(weekStart(max)) + ')');
+  if (/last week|previous week|past week/.test(q)) { const ws = addD(weekStart(max), -7); return mk(ws, addD(ws, 6), 'last week (' + fmtDS(ws) + ' – ' + fmtD(addD(ws, 6)) + ')'); }
+  if (/this month|current month/.test(q)) { const r = monthRange(my, mm); return mk(r.from, r.to, MONTHS_FULL[mm - 1] + ' ' + my + ' (latest month in your data)'); }
+  if (/last month|previous month/.test(q)) { const pm = mm === 1 ? 12 : mm - 1, py = mm === 1 ? my - 1 : my, r = monthRange(py, pm); return mk(r.from, r.to, MONTHS_FULL[pm - 1] + ' ' + py); }
+  if ((m = q.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*(\d{4})?/))) { const mi = MONTHS.findIndex(x => x.toLowerCase() === m[1]) + 1; let y = m[2] ? +m[2] : (mi > mm ? my - 1 : my); const r = monthRange(y, mi); return mk(r.from, r.to, MONTHS_FULL[mi - 1] + ' ' + y); }
+  const rg = resolveRange(); return {from: rg.from, to: rg.to, label: 'the selected dashboard period (' + periodLabel(rg) + ')', explicit: false};
+}
+function queryRecs(p, hostel, food) { return recs().filter(r => r.date >= p.from && r.date <= p.to && (!hostel || r.hostel === hostel) && (!food || foodCat(r.food) === food)); }
+function metricFromQuery(q) {
+  if (/fertili|frass|compost|manure/.test(q)) return {k: 'fertilizer', l: 'fertilizer'}; if (/protein|feed meal|larvae meal/.test(q)) return {k: 'protein', l: 'protein meal'}; if (/larva/.test(q) && !/process|efficien/.test(q)) return {k: 'larvae', l: 'larvae used'};
+  if (/co2|carbon|emission/.test(q)) return {k: 'co2', l: 'CO₂ avoided'}; if (/divert|diversion|landfill/.test(q)) return {k: 'diversion', l: 'landfill diversion'}; if (/recover/.test(q)) return {k: 'recovery', l: 'resource recovery'};
+  if (/process|treat|convert/.test(q)) return {k: 'processed', l: 'waste processed'}; if (/remain|pending|backlog|unprocessed/.test(q)) return {k: 'remaining', l: 'remaining (unprocessed) waste'}; return {k: 'collected', l: 'food waste collected'};
+}
+const unitOf = k => k === 'diversion' || k === 'recovery' ? '%' : k === 'co2' ? ' kg CO₂e' : ' kg';
+const srcNote = () => isDemo() ? '\n_Note: this uses the labelled **demo data** — import your file for real figures._' : '';
+function ctxRefs(q) {
+  const hostel = hostelList().find(h => q.includes(h.toLowerCase()) || q.includes(h.toLowerCase().replace(/\s*hostel$/, '')) && h.toLowerCase().replace(/\s*hostel$/, '').length > 3);
+  const food = FOOD_CATS.find(c => new RegExp('\\b' + c.toLowerCase() + '\\b').test(q) || (c === 'Vegetables' && /\bveg/.test(q))); return {hostel, food};
+}
+const A_ = {}; // intent handlers
+A_.greet = () => ({t: 'Hello! I\'m **BioBot**, your sustainability assistant. I can calculate totals, rank hostels, spot trends, forecast waste and explain BSF processing — using ' + (isDemo() ? 'the labelled **demo data**' : 'your imported records (' + num(S.records.length) + ' rows)') + '. What would you like to know?'});
+A_.help = () => ({t: 'Here\'s what I can do:\n- **Totals**: "How much waste did Gargi hostel produce last month?"\n- **Rankings**: "Which food type is wasted most?"\n- **Forecasts**: "Predict waste for the next 30 days"\n- **Trends & anomalies**: "Is waste increasing?" / "Any unusual days?"\n- **Impact**: "What is our CO₂ impact?"\n- **BSF knowledge**: "How long is the BSF life cycle?"\n- **Improvement**: "How can we improve efficiency?"\n- **Explain**: "Explain this page" / "Explain the donut chart"'});
+A_.metric = (q) => {
+  const p = periodFromQuery(q), {hostel, food} = ctxRefs(q), met = metricFromQuery(q), rs = queryRecs(p, hostel, food);
+  if (!rs.length) return {t: 'I found no records for ' + p.label + (hostel ? ' at ' + hostel : '') + '. Your data covers ' + fmtD(dataRange().min) + ' – ' + fmtD(dataRange().max) + '.'};
+  const k = kpis(rs), v = k[met.k], span = hostel ? ' at **' + hostel + '**' : '', fd = food ? ' (' + food + ' only)' : '';
+  let t = 'For ' + p.label + span + fd + ', **' + met.l + ' = ' + num(v, met.k === 'diversion' || met.k === 'recovery' ? 1 : 0) + unitOf(met.k) + '**.';
+  if (['collected', 'processed', 'fertilizer', 'protein', 'larvae', 'co2'].includes(met.k) && k.days) t += '\n- Average per day with data: ' + num(v / k.days, 1) + unitOf(met.k) + ' over ' + k.days + ' days.';
+  if (met.k === 'processed') t += '\n- That is ' + num(k.diversion, 1) + '% of the ' + num(k.collected) + ' kg collected; ' + num(k.remaining) + ' kg remains.';
+  if (met.k === 'collected') t += '\n- Of this, ' + num(k.processed) + ' kg (' + num(k.diversion, 1) + '%) has been processed.';
+  if (met.k === 'fertilizer' || met.k === 'protein') t += '\n- Yield: ' + num(k.processed ? v / k.processed * 100 : 0, 1) + '% of processed waste.';
+  const len = daysBetween(p.from, p.to) + 1, pp = {from: addD(p.from, -len), to: addD(p.from, -1)};
+  if (pp.to >= dataRange().min && ['collected', 'processed', 'fertilizer', 'protein', 'co2'].includes(met.k)) { const pk = kpis(queryRecs(pp, hostel, food)), ch = pctChange(v, pk[met.k]); if (ch !== null) t += '\n- ' + (ch >= 0 ? 'Up ' : 'Down ') + num(Math.abs(ch), 1) + '% compared with the preceding ' + len + ' days (' + num(pk[met.k]) + unitOf(met.k) + ').'; }
+  if (!hostel && hostelList().length > 1 && ['collected', 'processed'].includes(met.k)) { const ht = hostelTotals(rs); t += '\n- Highest: ' + ht[0].key + ' (' + num(ht[0].collected) + ' kg).'; }
+  return {t: t + srcNote()};
+};
+A_.rank = (q) => {
+  const p = periodFromQuery(q), least = /least|lowest|minimum|fewest|best|smallest/.test(q), byFood = /food|dish|item|category|type|meal/.test(q) && !/hostel|block/.test(q), rs = queryRecs(p);
+  if (!rs.length) return {t: 'No records found for ' + p.label + '.'};
+  const k = kpis(rs); let list = byFood ? foodTotals(rs).filter(f => f.collected > 0).sort((a, b) => b.collected - a.collected) : hostelTotals(rs); if (least) list = list.slice().reverse();
+  const top = list[0], days = k.days || 1;
+  let t = 'For ' + p.label + ', the ' + (byFood ? 'food category' : 'hostel') + ' with the **' + (least ? 'lowest' : 'highest') + '** waste is **' + top.key + '** — ' + num(top.collected) + ' kg (' + num(top.collected / k.collected * 100, 1) + '% of ' + num(k.collected) + ' kg total; ≈' + num(top.collected / days, 1) + ' kg/day).\n**Full ranking:**\n' + list.map((x, i) => '- ' + (i + 1) + '. ' + x.key + ': ' + num(x.collected) + ' kg (' + num(x.collected / k.collected * 100, 0) + '%)').join('\n');
+  if (!byFood && !least && list.length > 1) t += '\nSuggestion: focus awareness and portion-control measures on ' + top.key + ' first.'; return {t: t + srcNote()};
+};
+function horizonFromQuery(q) { let m; if ((m = q.match(/(\d+)\s*(day|week|month)/))) { const n = +m[1] * (m[2] === 'week' ? 7 : m[2] === 'month' ? 30 : 1); return clamp(n, 1, 120); } if (/next week|coming week|7 days/.test(q)) return 7; if (/quarter/.test(q)) return 90; return 30; }
+A_.forecast = (q) => {
+  const h = horizonFromQuery(q), {hostel} = ctxRefs(q), saved = S.settings.hostel; if (hostel) S.settings.hostel = hostel; const f = forecast(h); S.settings.hostel = saved;
+  if (!f.ok) return {t: f.reason};
+  const ch = pctChange(f.tot.collected, f.act.collected);
+  return {t: '**Estimate** for the next ' + h + ' days' + (hostel ? ' at ' + hostel : '') + ' (not a confirmed result):\n- Food waste: **' + num(f.tot.collected) + ' kg** (likely range ' + num(f.tot.lo) + '–' + num(f.tot.hi) + ' kg), about ' + num(f.tot.collected / h, 1) + ' kg/day' + (ch === null ? '' : ' — ' + (ch >= 0 ? 'up ' : 'down ') + num(Math.abs(ch), 1) + '% vs the last ' + h + ' days') + '\n- Fertilizer: ~' + num(f.tot.fertilizer) + ' kg · Protein meal: ~' + num(f.tot.protein) + ' kg\n- Method: weekday pattern × linear trend from the last ' + f.nDays + ' days' + (f.mape !== null ? '; back-test error ≈' + num(f.mape, 1) + '%' : '') + '. See the AI Predictions page for the chart.' + srcNote()};
+};
+A_.anomaly = (q) => {
+  const an = anomalies(recs().filter(hostelOK)).slice(0, 5), hi = seriesBy(filtered(), 'day').sort((a, b) => b.collected - a.collected).slice(0, 3);
+  let t = ''; if (/high|peak|worst|highest|most/.test(q) && !/unusual|anomal/.test(q)) t = '**Highest-waste days** in the selected period:\n' + hi.map(d => '- ' + fmtD(d.key) + ' (' + DOWS[dowOf(d.key)] + '): ' + num(d.collected, 1) + ' kg').join('\n');
+  else t = an.length ? '**Unusual days** (far from the weekday-adjusted trend):\n' + an.map(a => '- ' + fmtD(a.date) + ': ' + num(a.y, 1) + ' kg vs ~' + num(a.exp, 1) + ' expected (' + (a.z > 0 ? '+' : '') + num(a.z, 1) + 'σ)').join('\n') + '\nCheck events, festival meals, or missed collections on those dates.' : 'No unusual daily totals were detected in the recent history — the pattern looks consistent.';
+  return {t: t + srcNote()};
+};
+A_.sensor = (q) => {
+  if (/ideal|optimal|range|should|recommend|best/.test(q)) return A_.bsfKnow('conditions'); const s = S.sensor, live = s.conn === 'live';
+  const lines = Object.keys(SENS).map(k => '- ' + SENS[k].label + ': **' + num(s.vals[k], SENS[k].dec) + SENS[k].unit + '** (' + STATUS_TXT[s.status[k] || 'ok'] + ')');
+  const act = s.alerts.filter(a => a.level !== 'info').slice(0, 3);
+  return {t: '**' + (live ? 'Live' : 'Simulated') + ' BioPod readings**' + (live ? '' : ' (no hardware connected)') + ':\n' + lines.join('\n') + (act.length ? '\nRecent alerts:\n' + act.map(a => '- ' + a.ts + ' ' + a.msg).join('\n') : '\nNo recent alerts.')};
+};
+A_.impact = (q) => {
+  const A = S.settings.assump;
+  if (/how.*(calculat|comput)|assum|formula|factor/.test(q)) return {t: '**How CO₂ avoided is calculated**:\n- CO₂e avoided = processed waste × (landfill factor − process factor) + protein meal × feed credit\n- Current assumptions: landfill ' + A.landfill + ', process ' + A.process + ', feed credit ' + A.feedCredit + ' (kg CO₂e per kg)\n- These are **configurable placeholders** — published factors vary widely, so replace them with audited values on the Sustainability page.'};
+  const p = periodFromQuery(q), rs = queryRecs(p); if (!rs.length) return {t: 'No records found for ' + p.label + '.'}; const k = kpis(rs);
+  return {t: '**Environmental impact for ' + p.label + '**:\n- Waste diverted from landfill: **' + num(k.processed) + ' kg** (' + num(k.diversion, 1) + '% of collected)\n- Estimated CO₂e avoided: **' + num(k.co2) + ' kg** (≈' + num(A.tree ? k.co2 / A.tree : 0, 1) + ' tree-years)\n- Organic fertilizer: ' + num(k.fertilizer) + ' kg · Protein meal: ' + num(k.protein) + ' kg (' + num(k.recovery, 1) + '% resource recovery)\n- Based on your configured assumptions (landfill ' + A.landfill + ' − process ' + A.process + ' kg CO₂e/kg) — estimates, not audited.' + srcNote()};
+};
+A_.efficiency = () => {
+  const rs = filtered(), k = kpis(rs); if (!rs.length) return {t: 'I need records in the selected period to assess efficiency.'};
+  const ht = hostelTotals(rs).filter(h => h.collected > 5).sort((a, b) => a.diversion - b.diversion), tips = [];
+  let t = '**Your BSF processing efficiency** (' + periodLabel() + '):\n- Processing rate: **' + num(k.diversion, 1) + '%** · Resource recovery: **' + num(k.recovery, 1) + '%** · Fertilizer yield ' + num(k.processed ? k.fertilizer / k.processed * 100 : 0, 1) + '% · Protein yield ' + num(k.processed ? k.protein / k.processed * 100 : 0, 1) + '%' + (k.larvae ? ' · ' + num(k.processed / k.larvae, 0) + ' kg waste per kg larvae' : '') + '\n';
+  if (k.diversion < 90) tips.push('Close the ' + num(k.remaining) + ' kg processing gap: add an extra feeding cycle or larvae batch' + (ht.length > 1 ? ' — **' + ht[0].key + '** has the lowest rate (' + num(ht[0].diversion, 0) + '%)' : '') + '.');
+  const s = S.sensor.status, bad = Object.keys(SENS).filter(x => s[x] && s[x] !== 'ok'); if (bad.length) tips.push('Sensors flag ' + bad.map(x => SENS[x].label.toLowerCase()).join(', ') + ' outside the normal range — correct ventilation/moisture first.');
+  tips.push('Keep substrate temperature near **27–30 °C** and moisture around **60–70%** (indicative BSF ranges — calibrate for your pod).', 'Shred or chop waste and feed in thin layers to avoid hot spots and anaerobic pockets.', 'Balance wet and dry inputs (e.g. add dry roti/bran to very wet waste); limit oil and excess liquids.', 'Harvest larvae at the pre-pupal stage for best protein-meal yield, and drain leachate regularly.', 'Use the forecast to match feeding volume to expected daily waste.');
+  return {t: t + tips.map(x => '- ' + x).join('\n') + srcNote()};
+};
+A_.reduce = () => ({t: '**Waste-reduction strategies from your data:**\n' + strategies(filtered()).map(x => '- ' + x).join('\n') + srcNote()});
+A_.trend = (q) => {
+  const rs = filtered(), pr = prevFiltered(), k = kpis(rs), p = kpis(pr); if (!rs.length) return {t: 'No records in the selected period.'};
+  const f = forecast(30), ch = pctChange(k.collected, p.collected); let t = '**Trend analysis** for ' + periodLabel() + ':\n';
+  t += ch === null ? '- No earlier period available for comparison.\n' : '- Food waste collected is **' + (ch >= 0 ? 'up ' : 'down ') + num(Math.abs(ch), 1) + '%** vs the previous period (' + num(k.collected) + ' vs ' + num(p.collected) + ' kg).\n- Processing rate: ' + num(k.diversion, 1) + '% (previous ' + num(p.diversion, 1) + '%).\n';
+  if (f.ok) t += '- Underlying trend: ' + (Math.abs(f.slopeWeek) < 0.05 ? 'flat' : (f.slopeWeek > 0 ? 'rising' : 'falling') + ' by about ' + num(Math.abs(f.slopeWeek), 2) + ' kg/day each week') + '.\n';
+  const wp = weekdayProfile(rs), mx = wp.indexOf(Math.max(...wp)), mn = wp.indexOf(Math.min(...wp.filter(v => v > 0))); t += '- Busiest weekday: ' + DOWS[mx] + ' (' + num(wp[mx], 0) + ' kg avg); quietest: ' + DOWS[mn] + ' (' + num(wp[mn], 0) + ' kg avg).'; return {t: t + srcNote()};
+};
+A_.data = () => { const r = recs(), k = kpis(r); return {t: '**Data in use:** ' + (isDemo() ? 'generated DEMO data (not your records)' : 'your imported file(s)') + '.\n- Records: ' + num(r.length) + ' · Days: ' + k.days + ' · Range: ' + fmtD(dataRange().min) + ' – ' + fmtD(dataRange().max) + '\n- Hostels: ' + hostelList().join(', ') + '\n- Dashboard filter: ' + periodLabel() + ' (' + num(filtered().length) + ' records)' + (isDemo() ? '\nGo to **Data Import** to upload a CSV/Excel file.' : '')}; };
+const BSF = {
+  what: '**Black Soldier Fly (BSF, Hermetia illucens)** is a harmless fly whose larvae voraciously eat organic waste. The larvae convert food scraps into their own protein- and fat-rich biomass, while the leftover residue (frass) is a nutrient-rich organic fertilizer. Adults do not feed and are not disease vectors, which makes BSF well suited to campus mess waste.',
+  process: '**Waste → resources, step by step:**\n- **Collection & segregation**: remove plastics/bones; shred wet food waste\n- **Feeding**: spread waste in thin layers over the larvae\n- **Larval conversion**: larvae eat and reduce the waste mass substantially over ~2 weeks\n- **Separation**: mesh separates larvae from frass; leachate is drained\n- **Outputs**: frass → organic fertilizer; harvested larvae → dried protein meal (animal feed)\n- **Loop**: some larvae are kept to breed the next generation',
+  life: '**BSF life cycle (typical, ~6 weeks):** egg ≈ 4 days → larva ≈ 14–18 days (feeding stage) → pre-pupa/pupa ≈ 10–14 days → adult fly ≈ 5–10 days (mating and egg-laying only). Exact timing depends on temperature and feed quality.',
+  conditions: '**Indicative good conditions:**\n- Temperature: ~27–30 °C (workable ~25–35 °C)\n- Substrate moisture: ~60–70% (too wet → odour/anaerobic; too dry → slow feeding)\n- Good ventilation and drainage; shade and rain protection\n- Thin feeding layers and shredded waste\n(These are general guidelines — your configured thresholds are on the IoT page.)',
+  feed: '**Feeding guide:** BSF accept cooked rice, dal, roti, vegetables and fruit scraps well. Limit very oily food, large quantities of citrus/onion/spicy waste, and avoid plastics, bones, glass and chemicals. Balance very wet waste with dry material, and chop pieces small.',
+  outputs: '**Outputs:** (1) **Frass/organic fertilizer** — a stabilised soil conditioner with nutrients for plants; (2) **Larval protein meal** — dried larvae used as protein-rich feed for poultry, fish and pets; (3) reduced waste volume and avoided landfill methane. Actual yields depend on feed and conditions — see the BSF Processing page for your measured ratios.',
+  why: '**Why BSF instead of simple composting?** BSF is faster (days vs weeks), reduces waste volume strongly, produces a second valuable product (protein meal) and has a smaller odour and fly-nuisance footprint when managed well. It does need temperature/moisture control — which is why the BioPod uses IoT sensors.',
+  biopod: '**The BioPod (from the BioLoop pitch):** a compact smart biorefinery built under ₹20,000 with a plastic drum BSF setup, manual waste input port, mesh separation, ventilation, drainage outlet, compost collection tray, Arduino/ESP32 sensors (temperature, humidity, moisture), solar backup and this AI dashboard. Dual output: organic fertilizer and protein-rich animal feed.'
+};
+A_.bsfKnow = (key) => ({t: BSF[key] || BSF.what});
+function bsfSub(q) { if (/life ?cycle|how long|stage|egg|pupa|days? to/.test(q)) return 'life'; if (/ideal|optimal|condition|temperature|moisture|humidity|environment/.test(q)) return 'conditions'; if (/feed|eat|avoid|oil|meat|onion|citrus|what can/.test(q)) return 'feed'; if (/frass|fertili|protein|output|product|yield/.test(q)) return 'outputs'; if (/why|vs|versus|compost|better|advantage|benefit/.test(q)) return 'why'; if (/biopod|biopad|prototype|solar|esp32|cost|20,?000/.test(q)) return 'biopod'; if (/process|convert|work|step|flow|how does/.test(q)) return 'process'; return 'what'; }
+A_.explainPage = (q) => {
+  const pg = S.page, k = kpis(filtered()), E = {
+    overview: 'The **Overview** shows six KPI cards for ' + periodLabel() + ' with trend arrows against the previous period (green = favourable). The line chart compares collected vs processed waste per day, the donut shows the food-type mix, and the bar chart ranks hostels. Right now: ' + num(k.collected) + ' kg collected, ' + num(k.diversion, 1) + '% processed.',
+    analytics: '**Waste Analytics** has six charts: (A) collected vs processed trend; (B) food composition donut; (C) hostel comparison; (D) fertilizer & protein output (dual axis); (E) stacked bars — processed + remaining = collected; (F) CO₂ avoided (bars) with landfill diversion % (line). Use Daily/Weekly/Monthly to change the grouping.',
+    predictions: '**AI Predictions** plots historical daily values (solid) and the forecast (dashed) with a shaded ~80% range. It is a trend × weekday-pattern model — an **estimate**, not a confirmed result. The lists show high-waste days, statistical anomalies and strategies.',
+    bsf: '**BSF Processing** animates the flow Food Waste → Segregation → Larvae → Fertilizer + Protein → Resource Recovery with your totals. The progress bar is processed ÷ collected; the line chart tracks weekly processing rate and recovery.',
+    iot: '**IoT Monitoring** shows temperature, humidity and moisture with coloured zones (green normal, amber warning, red critical) based on your thresholds. Values are ' + (S.sensor.conn === 'live' ? 'live from your device' : 'simulated') + '. The historical chart uses the sensor columns of your imported data.',
+    impact: '**Sustainability Impact** converts processed volumes into landfill diversion and estimated CO₂e avoided using editable assumptions. The rings show diversion and resource recovery; the line shows cumulative CO₂e avoided.',
+    reports: '**Reports** let you choose a report type, review KPIs, charts and a table, and download CSV, Excel or PDF for the current date filter.',
+    import: '**Data Import** accepts CSV/Excel, lets you map columns, shows a validation report (missing values, duplicates) and stores confirmed rows in this browser. All dashboard numbers then update.',
+    assistant: 'This page explains BioBot and lets you configure an optional external AI endpoint.'
+  };
+  let t = E[pg]; if (/donut|pie|composition/.test(q)) { const f = foodTotals(filtered()).sort((a, b) => b.collected - a.collected); t = 'The **donut chart** splits collected waste by food type. Currently ' + f[0].key + ' is largest at ' + num(k.collected ? f[0].collected / k.collected * 100 : 0, 0) + '% (' + num(f[0].collected) + ' kg). Big slices show where menu or portion changes will cut the most waste.'; }
+  else if (/forecast|predict/.test(q)) t = E.predictions; else if (/hostel|bar/.test(q) && /chart|graph|bar/.test(q)) t = 'The **hostel bar chart** compares total waste collected per hostel in the selected period — the longest bar is the biggest contributor. Hover to see the daily average.';
+  return {t: t + srcNote()};
+};
+function bioAnswer(question) {
+  const q = question.toLowerCase().trim();
+  if (/^(hi|hello|hey|namaste|good (morning|afternoon|evening))\b/.test(q) && q.length < 30) return A_.greet();
+  if (/what can you|help me|capabilit|^help$/.test(q)) return A_.help();
+  if (/explain|interpret|what does (this|the)|what is this|meaning of/.test(q) && /page|chart|graph|dashboard|donut|pie|bar|screen|section|this/.test(q)) return A_.explainPage(q);
+  if (/predict|forecast|next (week|month|\d+ ?days?|quarter)|projection|expect/.test(q)) return A_.forecast(q);
+  if (/anomal|unusual|spike|outlier|abnormal|strange|high.?waste day|peak day|worst day|highest day/.test(q)) return A_.anomaly(q);
+  if (/(which|who|rank|top|most|highest|lowest|least|worst|best|biggest|largest|smallest|fewest)/.test(q) && /(hostel|block|food|dish|item|category|type|meal|waste)/.test(q) && !/how (can|do|to)|improv|efficien/.test(q) && /hostel|block|food|dish|item|categor|type|meal/.test(q)) return A_.rank(q);
+  if (/sensor|temperature|humidity|moisture|iot|esp32|alert/.test(q) && !/produc|fertili/.test(q)) return A_.sensor(q);
+  if (/environment|impact|co2|carbon|emission|landfill|sustainab|divert|footprint|climate/.test(q)) return A_.impact(q);
+  if (/efficien|improve|optimi[sz]e|yield|performance|boost|better/.test(q)) return A_.efficiency(q);
+  if (/reduc|minimi[sz]e|cut down|prevent|strateg|less waste|lower waste|tips/.test(q)) return A_.reduce(q);
+  if (/trend|increas|decreas|growing|declin|compare|comparison|growth|change|vs\b|versus|pattern/.test(q) && !/bsf|larva/.test(q)) return A_.trend(q);
+  if (/how much|how many|total|amount|quantity|\bkg\b|sum|average|avg|produced|generated|collected|processed/.test(q) && !/bsf (is|works)|how many days|how long/.test(q)) return A_.metric(q);
+  if (/bsf|black soldier|larva|life ?cycle|frass|biopod|biopad|bioloop|compost|process|convert|work|what is|why/.test(q)) return A_.bsfKnow(bsfSub(q));
+  if (/data|record|import|upload|demo|rows|file|csv|excel/.test(q)) return A_.data();
+  return null;
+}
+function buildContext() {
+  const rs = filtered(), k = kpis(rs), f = forecast(30); const r2 = x => round(x, 1);
+  return {dataSource: isDemo() ? 'demo' : 'imported', period: periodLabel(), records: rs.length, kpis: {collectedKg: r2(k.collected), processedKg: r2(k.processed), diversionPct: r2(k.diversion), fertilizerKg: r2(k.fertilizer), proteinKg: r2(k.protein), co2AvoidedKg: r2(k.co2)}, byHostel: hostelTotals(rs).map(h => ({hostel: h.key, collectedKg: r2(h.collected), processedKg: r2(h.processed)})), byFood: foodTotals(rs).map(x => ({food: x.key, collectedKg: r2(x.collected)})), forecast30d: f.ok ? {collectedKg: r2(f.tot.collected), fertilizerKg: r2(f.tot.fertilizer), proteinKg: r2(f.tot.protein)} : null, sensors: S.sensor.vals, assumptions: S.settings.assump};
+}
+async function callExternal(question) {
+  const url = S.settings.ai.url; if (!url) throw new Error('no endpoint'); const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
+  try {
+    const hist = S.chat.filter(m => m.role !== 'sys').slice(-8).map(m => ({role: m.role === 'user' ? 'user' : 'assistant', content: m.text}));
+    const res = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question, history: hist, context: buildContext()}), signal: ac.signal});
+    if (!res.ok) throw new Error('HTTP ' + res.status); const j = await res.json(); const txt = j.reply || j.answer || j.text || (j.choices && j.choices[0] && (j.choices[0].message ? j.choices[0].message.content : j.choices[0].text)); if (!txt) throw new Error('empty response'); return String(txt);
+  } finally { clearTimeout(to); }
+}
+async function resolveAnswer(question) {
+  const mode = S.settings.ai.mode, ext = S.settings.ai.url && mode !== 'local';
+  if (ext && mode === 'external') { try { return {t: await callExternal(question), src: 'ext'}; } catch (e) { const l = bioAnswer(question); return {t: (l ? l.t : fallbackText()) + '\n_(External AI unavailable: ' + e.message + ' — answered locally.)_', src: 'local'}; } }
+  const l = bioAnswer(question); if (l) return {t: l.t, src: 'local'};
+  if (ext) { try { return {t: await callExternal(question), src: 'ext'}; } catch (e) { return {t: fallbackText() + '\n_(External AI unavailable: ' + e.message + ')_', src: 'local'}; } }
+  return {t: fallbackText(), src: 'local'};
+}
+const fallbackText = () => 'I\'m not sure I understood that. As a **local data assistant** I answer questions about your waste data, forecasts, sustainability impact and BSF processing. Try one of the suggested questions below' + (S.settings.ai.url ? '.' : ', or configure an external AI endpoint on the AI Assistant page for open-ended chat.');
+
+/* Chat UI */
+function saveChat() { lsSet(LS.chat, S.chat.slice(-60)); }
+function msgHTML(m) {
+  const user = m.role === 'user', src = m.src === 'ext' ? '<span class="src ext"><i data-lucide="cloud"></i> External AI</span>' : m.src === 'local' ? '<span class="src local"><i data-lucide="database"></i> Local · calculated from dashboard data</span>' : '';
+  return '<div class="msg ' + (user ? 'user' : 'bot') + '"><div class="av ' + (user ? 'user' : 'bot') + '">' + (user ? 'You' : '<i data-lucide="leaf"></i>') + '</div><div class="bub">' + (user ? esc(m.text) : md(m.text)) + (user ? '' : '<br>' + src) + '</div></div>';
+}
+function renderChat() {
+  const body = $('#chatBody'); body.innerHTML = S.chat.map(msgHTML).join(''); ic(); body.scrollTop = body.scrollHeight;
+  $('#chatSuggest').innerHTML = SUGGESTED.map(q => '<button type="button" data-act="chat-ask" data-q="' + esc(q) + '">' + esc(q) + '</button>').join('');
+}
+function updateChatHeader() { const ext = S.settings.ai.url && S.settings.ai.mode !== 'local'; $('#chatModeTxt').innerHTML = ext ? '☁ External AI + local analytics' : '● Local data assistant'; $('#chatDataTxt').textContent = isDemo() ? 'Demo data' : num(S.records.length) + ' imported records'; }
+function addTyping() { const d = document.createElement('div'); d.className = 'msg bot'; d.id = 'typing'; d.innerHTML = '<div class="av bot"><i data-lucide="leaf"></i></div><div class="bub typing"><span></span><span></span><span></span></div>'; $('#chatBody').appendChild(d); ic(); $('#chatBody').scrollTop = 1e9; }
+let chatBusy = false;
+async function chatSend(text) {
+  text = String(text || '').trim(); if (!text || chatBusy) return; chatBusy = true; openChat();
+  S.chat.push({role: 'user', text, ts: Date.now()}); $('#chatBody').insertAdjacentHTML('beforeend', msgHTML(S.chat[S.chat.length - 1])); addTyping(); $('#chatInput').value = '';
+  const t0 = Date.now(); let ans; try { ans = await resolveAnswer(text); } catch (e) { ans = {t: 'Sorry, something went wrong: ' + e.message, src: 'local'}; }
+  const wait = Math.max(0, 650 - (Date.now() - t0)); await new Promise(r => setTimeout(r, wait));
+  $('#typing') && $('#typing').remove(); S.chat.push({role: 'bot', text: ans.t, src: ans.src, ts: Date.now()}); saveChat(); renderChat(); chatBusy = false;
+}
+function openChat() { $('#chat').classList.add('open'); $('#chat').setAttribute('aria-hidden', 'false'); $('#chatFab').classList.add('hidden'); setTimeout(() => $('#chatInput').focus(), 350); }
+function closeChat() { $('#chat').classList.remove('open'); $('#chat').setAttribute('aria-hidden', 'true'); $('#chatFab').classList.remove('hidden'); }
+function initChat() {
+  S.chat = lsGet(LS.chat, []); if (!S.chat.length) S.chat.push({role: 'bot', src: 'sys', text: 'Hi! I\'m **BioBot**, your sustainability assistant 🌱\nI answer from your dashboard data — ' + (isDemo() ? 'currently the labelled **demo data** (import a file for your own numbers).' : 'your imported records.') + ' Pick a suggestion below or ask anything about waste, forecasts, impact or BSF processing.'});
+  renderChat(); updateChatHeader();
+}
+
+/* ---------- 11. UI WIRING & INIT ---------- */
+function openSidebar() { $('#sidebar').classList.add('open'); $('#overlay').classList.add('show'); }
+function closeSidebar() { $('#sidebar').classList.remove('open'); $('#overlay').classList.remove('show'); }
+const ACT = {
+  goto: p => go(p), 'open-sidebar': openSidebar, 'close-sidebar': closeSidebar,
+  gran: g => { S.ui.gran = g; renderAnalytics(); }, horizon: h => { S.ui.horizon = +h; renderPredictions(); ic(); }, pm: k => { S.ui.pm = k; renderPredictions(); ic(); },
+  'imp-mode': m => { S.ui.impMode = m; renderImportWizard(); }, 'imp-cancel': () => { S.imp = null; $('#impWizard').classList.add('hide'); $('#fileInput').value = ''; setSteps(1); }, 'imp-confirm': commitImport,
+  'imp-template': () => { if (!window.Papa) return; download(new Blob(['\ufeff' + templateCSV()], {type: 'text/csv'}), 'BioLoop_import_template.csv'); },
+  'exp-all-csv': () => exportRecords(recs(), 'csv', 'BioLoop_records_' + stamp()), 'exp-all-xlsx': () => exportRecords(recs(), 'xlsx', 'BioLoop_records_' + stamp()),
+  'exp-f-csv': () => exportRecords(filtered(), 'csv', 'BioLoop_filtered_' + stamp()), 'exp-f-xlsx': () => exportRecords(filtered(), 'xlsx', 'BioLoop_filtered_' + stamp()),
+  'clear-data': async () => { if (isDemo()) return toast('There is no imported data to clear — demo data is shown.', 'warn'); if (await confirmBox('Clear imported data?', 'This permanently removes ' + num(S.records.length) + ' imported records from this browser and returns the dashboard to demo data.', 'Clear data')) { S.records = []; try { localStorage.removeItem(LS.data); } catch (e) {} S.settings.preset = '30'; saveSettings(); computeRange(); S.ui.tblPage = 0; refreshAll(); toast('Imported data cleared. Showing demo data.'); } },
+  'tbl-prev': () => { S.ui.tblPage--; renderStored(); }, 'tbl-next': () => { S.ui.tblPage++; renderStored(); },
+  'rep-type': t => { S.ui.repType = t; renderReports(); ic(); }, 'rep-csv': () => exportReport('csv'), 'rep-xlsx': () => exportReport('xlsx'), 'rep-pdf': () => { try { exportPDF(); } catch (e) { console.error(e); toast('PDF generation failed: ' + e.message, 'err'); } },
+  'chat-toggle': () => $('#chat').classList.contains('open') ? closeChat() : openChat(), 'chat-open': openChat, 'chat-close': closeChat,
+  'chat-clear': async () => { if (await confirmBox('Clear chat history?', 'This deletes the saved BioBot conversation from this browser.', 'Clear chat')) { S.chat = []; localStorage.removeItem(LS.chat); initChat(); } },
+  'chat-settings': () => { closeChat(); go('assistant'); }, 'chat-ask': (a, el) => chatSend(el.dataset.q),
+  'ai-mode': m => { S.settings.ai.mode = m; $$('#aiModeSeg button').forEach(b => b.classList.toggle('on', b.dataset.arg === m)); },
+  'ai-save': () => { const u = $('#aiUrl').value.trim(); if (u && !/^https?:\/\//i.test(u)) return toast('Enter a full URL starting with http:// or https://', 'err'); if (/(sk-|api[_-]?key=|bearer )/i.test(u)) return toast('Do not put API keys in the URL. Use a server-side proxy.', 'err'); S.settings.ai.url = u; if (!u) S.settings.ai.mode = 'local'; saveSettings(); renderAssistant(); updateChatHeader(); toast('AI settings saved.'); },
+  'ai-test': async () => { const u = $('#aiUrl').value.trim(); if (!u) return toast('Enter an endpoint first.', 'warn'); const old = S.settings.ai.url; S.settings.ai.url = u; try { const r = await callExternal('Say OK'); toast('Endpoint replied: ' + r.slice(0, 60)); } catch (e) { toast('Test failed: ' + e.message + ' (check CORS and URL)', 'err'); } S.settings.ai.url = old; },
+  'iot-fault': () => { S.sensor.fault = 8; toast('Simulating an abnormal event — watch the alerts.', 'warn'); S.settings.iot.mode === 'live' && toast('Live mode is on: the simulated event only applies to simulated data.', 'warn'); },
+  'iot-clear-alerts': () => { S.sensor.alerts = []; updateIoT(); },
+  'iot-save-th': () => { const th = S.settings.thresholds; let ok = true; Object.keys(SENS).forEach(k => ['cl', 'wl', 'wh', 'ch'].forEach(f => { const v = parseFloat($('#th_' + k + '_' + f).value); if (isNaN(v)) ok = false; else th[k][f] = v; })); const bad = Object.keys(SENS).some(k => !(th[k].cl <= th[k].wl && th[k].wl <= th[k].wh && th[k].wh <= th[k].ch)); if (!ok || bad) { S.settings.thresholds = deepMerge(DEFAULT_SETTINGS.thresholds, lsGet(LS.settings, {}).thresholds || {}); return toast('Thresholds must satisfy: critical-low ≤ warn-low ≤ warn-high ≤ critical-high.', 'err'); } S.sensor.status = {}; saveSettings(); renderIoT(); ic(); toast('Thresholds saved.'); },
+  'iot-reset-th': () => { S.settings.thresholds = deepMerge(DEFAULT_SETTINGS.thresholds, {}); S.sensor.status = {}; saveSettings(); renderIoT(); ic(); toast('Thresholds reset to defaults.'); },
+  'iot-connect': () => { const u = $('#iotUrl').value.trim(); if (!/^https?:\/\//i.test(u)) return toast('Enter the device URL, e.g. http://192.168.1.50/sensors', 'err'); S.settings.iot = {mode: 'live', url: u}; S.sensor.conn = 'connecting'; S.sensor.fails = 0; saveSettings(); livePoll(); toast('Connecting to ' + u + ' …'); },
+  'iot-sim': () => { S.settings.iot.mode = 'sim'; S.sensor.conn = 'sim'; saveSettings(); updateSideSensor(); updateIoT(); toast('Using simulated data.'); },
+  'assump-save': () => { const A = S.settings.assump; let ok = true; Object.keys(A).forEach(k => { const v = parseFloat($('#as_' + k).value); if (isNaN(v) || v < 0) ok = false; else A[k] = v; }); if (!ok) return toast('All assumptions must be non-negative numbers.', 'err'); saveSettings(); renderImpact(); ic(); toast('Assumptions saved — all CO₂ figures updated.'); },
+  'assump-reset': () => { S.settings.assump = deepMerge(DEFAULT_SETTINGS.assump, {}); saveSettings(); renderImpact(); ic(); toast('Assumptions reset.'); },
+  'settings-open': () => { $('#setOrg').value = S.settings.org; $('#settingsBg').classList.add('show'); }, 'settings-close': () => $('#settingsBg').classList.remove('show'),
+  'settings-save': () => { S.settings.org = $('#setOrg').value.trim() || 'Green Think Tank'; saveSettings(); $('#settingsBg').classList.remove('show'); refreshAll(); toast('Preferences saved.'); },
+  'settings-reset': async () => { if (await confirmBox('Reset all app data?', 'Imported data, settings, thresholds and chat history stored in this browser will be deleted.', 'Reset everything')) { Object.values(LS).forEach(k => localStorage.removeItem(k)); location.reload(); } }
+};
+const CHG = {
+  preset: v => { S.settings.preset = v; if (v === 'custom') { const r = resolveRange(); S.settings.from = r.from; S.settings.to = r.to; } saveSettings(); refreshAll(); },
+  from: v => { S.settings.from = v; S.settings.preset = 'custom'; saveSettings(); refreshAll(); }, to: v => { S.settings.to = v; S.settings.preset = 'custom'; saveSettings(); refreshAll(); },
+  hostel: v => { S.settings.hostel = v; saveSettings(); refreshAll(); },
+  map: (v, el) => { S.imp.mapping[el.dataset.key] = v; renderImportWizard(); },
+  sheet: v => { const r = sheetToRows(S.imp.wb, v); S.imp.sheet = v; S.imp.headers = r.headers; S.imp.rows = r.rows; S.imp.mapping = autoMap(r.headers); renderImportWizard(); }
+};
+function wire() {
+  document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) return; const fn = ACT[el.dataset.act]; if (fn) { e.preventDefault(); fn(el.dataset.arg, el, e); } });
+  document.addEventListener('change', e => { const el = e.target.closest('[data-chg]'); if (el && CHG[el.dataset.chg]) CHG[el.dataset.chg](el.value, el, e); });
+  const dz = $('#dz'), fi = $('#fileInput');
+  dz.addEventListener('click', () => fi.click()); dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
+  fi.addEventListener('change', () => { handleFile(fi.files[0]); fi.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); })); ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+  dz.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+  ['dragover', 'drop'].forEach(ev => window.addEventListener(ev, e => { if (!dz.contains(e.target)) e.preventDefault(); }));
+  $('#chatForm').addEventListener('submit', e => { e.preventDefault(); chatSend($('#chatInput').value); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeChat(); closeSidebar(); $('#settingsBg').classList.remove('show'); } });
+  window.addEventListener('hashchange', () => { const p = location.hash.slice(1); if (p && p !== S.page) go(p); });
+}
+function init() {
+  chartDefaults(); S.settings = deepMerge(DEFAULT_SETTINGS, lsGet(LS.settings, {})); const saved = lsGet(LS.data, []); S.records = Array.isArray(saved) ? saved : []; S.demo = genDemo(); computeRange();
+  buildNav(); wire(); initChat(); startSensors();
+  const p = location.hash.slice(1); S.page = PAGES.find(x => x[0] === p) ? p : 'overview'; setSteps(1); refreshAll(); go(S.page); ic();
+  window.addEventListener('resize', () => { Object.values(S.charts).forEach(c => { try { c.resize(); } catch (e) {} }); });
+}
+window.__BL = {S, kpis, forecast, anomalies, bioAnswer, genDemo, analyzeImport, autoMap, parseDate, parseNum, buildReport, seriesBy, hostelTotals, foodTotals, strategies, resolveAnswer, periodFromQuery};
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+</script>
+</body>
+</html>
